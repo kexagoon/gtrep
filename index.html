@@ -3,26 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Click Counter</title>
+    <title>Click Counter App</title>
     <style>
-        body {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body, html {
+            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
+            background-color: #ccc;
         }
-        button {
+        #loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            color: white;
             font-size: 24px;
-            padding: 20px;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        #app {
+            display: none;
+            background-color: #ccc;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #clickBtn {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background-color: #555;
+            color: white;
+            font-size: 32px;
+            border: none;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <button id="clickBtn">0</button>
+    <!-- Экран загрузки -->
+    <div id="loading">Загрузка...</div>
+
+    <!-- Основное приложение -->
+    <div id="app">
+        <button id="clickBtn">0</button>
+    </div>
 
     <script>
+        // Показ экрана загрузки на 2 секунды
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('app').style.display = 'flex';
+        }, 2000);
+
+        // Логика для счетчика кликов
         let count = 0;
         const button = document.getElementById('clickBtn');
         button.addEventListener('click', () => {
