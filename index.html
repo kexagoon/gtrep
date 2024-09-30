@@ -2,20 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, initial-scale=1, maximum-scale=1">
     <title>Click Counter App</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         body, html {
             height: 100%;
+            overflow: hidden;
+            background-color: #ccc;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #ccc;
+            position: relative;
         }
         #loading {
             display: flex;
@@ -32,12 +38,13 @@
         }
         #app {
             display: none;
-            background-color: #ccc;
             height: 100%;
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
+            background-color: #ccc;
+            position: relative;
         }
         #clickBtn {
             width: 200px;
@@ -48,6 +55,28 @@
             font-size: 32px;
             border: none;
             cursor: pointer;
+            outline: none;
+            position: relative;
+            transition: box-shadow 0.2s;
+        }
+        #clickBtn:active {
+            box-shadow: 0 0 20px 10px rgba(255, 255, 0, 0.8); /* Эффект свечения при нажатии */
+        }
+        .floating-plus {
+            position: absolute;
+            color: green;
+            font-size: 24px;
+            animation: moveUp 1s forwards;
+        }
+        @keyframes moveUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
         }
     </style>
 </head>
@@ -61,7 +90,7 @@
     </div>
 
     <script>
-        // Показ экрана загрузки на 2 секунды
+        // Показ экрана загрузки
         setTimeout(() => {
             document.getElementById('loading').style.display = 'none';
             document.getElementById('app').style.display = 'flex';
@@ -70,9 +99,36 @@
         // Логика для счетчика кликов
         let count = 0;
         const button = document.getElementById('clickBtn');
-        button.addEventListener('click', () => {
+        button.addEventListener('click', (event) => {
             count++;
             button.textContent = count;
+
+            // Создание элемента +1
+            const plusOne = document.createElement('div');
+            plusOne.textContent = '+1';
+            plusOne.classList.add('floating-plus');
+            document.body.appendChild(plusOne);
+
+            // Устанавливаем позицию на месте клика
+            const rect = button.getBoundingClientRect();
+            plusOne.style.left = `${event.clientX}px`;
+            plusOne.style.top = `${event.clientY - 30}px`; // Чуть выше точки клика
+
+            // Удаление элемента после завершения анимации
+            setTimeout(() => {
+                plusOne.remove();
+            }, 1000);
+        });
+
+        // Отключение масштабирования при двойном клике
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        document.addEventListener('gesturestart', function(event) {
+            event.preventDefault();
         });
     </script>
 </body>
