@@ -66,8 +66,8 @@
             position: absolute;
             color: green;
             font-size: 24px;
-            font-weight: bold; /* Жирный текст */
-            animation: moveUp 2s forwards; /* Анимация длится 2 секунды */
+            font-weight: bold; /* Сделать "жирнее" */
+            animation: moveUp 2s forwards; /* Увеличено время до 2 секунд */
         }
         @keyframes moveUp {
             0% {
@@ -110,19 +110,21 @@
             plusOne.classList.add('floating-plus');
             document.body.appendChild(plusOne);
 
-            // Устанавливаем позицию на месте клика
+            // Устанавливаем позицию чуть выше и левее от места клика
             const rect = button.getBoundingClientRect();
-            plusOne.style.left = `${event.clientX}px`;
-            plusOne.style.top = `${event.clientY - 30}px`; // Чуть выше точки клика
+            const offsetX = Math.random() * 40 - 20; // Рандомизируем смещение по X
+            const offsetY = Math.random() * 40 - 40; // Рандомизируем смещение по Y
+            plusOne.style.left = `${rect.left + rect.width / 2 + offsetX}px`;
+            plusOne.style.top = `${rect.top + rect.height / 2 + offsetY}px`;
 
-            // Удаление элемента после завершения анимации (через 2 секунды)
+            // Удаление элемента после завершения анимации
             setTimeout(() => {
                 plusOne.remove();
-            }, 2000);
+            }, 2000); // Увеличено до 2 секунд
 
-            // Вибрация устройства при нажатии (если поддерживается)
+            // Вибрация устройства (если поддерживается)
             if (navigator.vibrate) {
-                navigator.vibrate(100); // Вибрация на 100 миллисекунд
+                navigator.vibrate(50); // Вибрация на 50 миллисекунд
             }
         });
 
