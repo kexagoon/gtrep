@@ -80,17 +80,15 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%); /* Центрирование */
-            padding: 10px 20px;
-            background-color: rgba(255, 255, 255, 0.7);
-            border: 2px solid #555;
-            border-radius: 10px;
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 32px; /* Увеличенный шрифт */
+            font-weight: bold; /* Жирный шрифт */
+            color: #fff; /* Цвет текста */
         }
         .upgrade-container {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            bottom: 20px; /* Расположение под кнопкой */
+            left: 50%;
+            transform: translateX(-50%);
             padding: 10px 20px;
             background-color: rgba(255, 255, 255, 0.7);
             border: 2px solid #555;
@@ -98,16 +96,19 @@
             font-size: 24px;
             font-weight: bold;
             cursor: pointer;
+            text-align: center; /* Центрирование текста */
         }
         #upgradeOptions {
             display: none;
             position: absolute;
-            bottom: 100px; /* Расположение под кнопкой */
-            right: 20px;
+            bottom: 100px; /* Расположение под кнопкой улучшения */
+            left: 50%;
+            transform: translateX(-50%);
             background-color: rgba(255, 255, 255, 0.9);
             border: 2px solid #555;
             border-radius: 10px;
             padding: 10px;
+            text-align: center; /* Центрирование текста */
         }
         #upgradeOptions div {
             padding: 5px;
@@ -162,6 +163,8 @@
             Собрано: <span id="clickCount">0</span>
         </div>
 
+        <button id="clickBtn"></button>
+
         <div class="upgrade-container" id="upgradeBtn">Улучшить</div>
 
         <!-- Список улучшений -->
@@ -170,8 +173,6 @@
             <div data-cost="100" data-increment="2">Увеличить на 2 (100 нажатий)</div>
             <div data-cost="500" data-increment="6">Увеличить на 6 (500 нажатий)</div>
         </div>
-
-        <button id="clickBtn"></button>
 
         <!-- Экран победы -->
         <div id="victory">Вы Победили! Ждите награду...</div>
