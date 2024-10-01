@@ -78,11 +78,14 @@
         .counter-container {
             position: absolute;
             top: 20px;
-            left: 20px;
-            padding: 10px;
+            left: 50%;
+            transform: translateX(-50%); /* Центрирование */
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 2px solid #555;
+            border-radius: 10px;
             font-size: 24px;
             font-weight: bold;
-            color: white;
         }
         .upgrade-container {
             position: absolute;
@@ -99,19 +102,19 @@
         #upgradeOptions {
             display: none;
             position: absolute;
-            top: 60px;
+            bottom: 100px; /* Расположение под кнопкой */
             right: 20px;
             background-color: rgba(255, 255, 255, 0.9);
             border: 2px solid #555;
             border-radius: 10px;
             padding: 10px;
         }
-        .upgrade-option {
+        #upgradeOptions div {
             padding: 5px;
             cursor: pointer;
-            border: 1px solid #555;
-            border-radius: 5px;
-            margin: 5px 0;
+        }
+        #upgradeOptions div:hover {
+            background-color: rgba(200, 200, 200, 0.5); /* Подсветка при наведении */
         }
         #clickBtn {
             width: 400px;
@@ -163,9 +166,9 @@
 
         <!-- Список улучшений -->
         <div id="upgradeOptions">
-            <div class="upgrade-option" data-cost="50" data-increment="1">Увеличить на 1 (50 нажатий)</div>
-            <div class="upgrade-option" data-cost="100" data-increment="2">Увеличить на 2 (100 нажатий)</div>
-            <div class="upgrade-option" data-cost="500" data-increment="6">Увеличить на 6 (500 нажатий)</div>
+            <div data-cost="50" data-increment="1">Увеличить на 1 (50 нажатий)</div>
+            <div data-cost="100" data-increment="2">Увеличить на 2 (100 нажатий)</div>
+            <div data-cost="500" data-increment="6">Увеличить на 6 (500 нажатий)</div>
         </div>
 
         <button id="clickBtn"></button>
@@ -235,11 +238,6 @@
             if (count >= cost) {
                 count -= cost;
                 increment += newIncrement;
-                
-                // Увеличиваем стоимость улучшения
-                const currentCost = parseInt(e.target.getAttribute('data-cost'));
-                e.target.setAttribute('data-cost', currentCost + 10);
-                
                 updateUI();
             }
         });
