@@ -1,48 +1,51 @@
 const character = document.getElementById('character');
-let posX = window.innerWidth / 2 - 32;
-let posY = window.innerHeight / 2 - 32;
+let posX = window.innerWidth/2 - 20;
+let posY = window.innerHeight/2 - 20;
 let direction = 1;
 let isMoving = true;
-
-// Загрузите этот спрайт или создайте свой: https://i.imgur.com/BDqQ6WX.png
-// Сохраните как sprite.png в папке проекта
 
 function moveCharacter() {
     if (!isMoving) return;
 
-    const speed = 2;
+    const speed = 3;
     const angle = Math.random() * Math.PI * 2;
     
     posX += Math.cos(angle) * speed;
     posY += Math.sin(angle) * speed;
     
     // Проверка границ экрана
-    if (posX < 0 || posX > window.innerWidth - 64) {
+    if (posX < 0 || posX > window.innerWidth - 40) {
         direction *= -1;
-        character.style.transform = `scaleX(${direction})`;
+        posX = Math.max(0, Math.min(posX, window.innerWidth - 40));
+    }
+    
+    if (posY < 0 || posY > window.innerHeight - 40) {
+        posY = Math.max(0, Math.min(posY, window.innerHeight - 40));
     }
     
     character.style.left = posX + 'px';
     character.style.top = posY + 'px';
     
-    // Случайная остановка
-    if (Math.random() < 0.02) {
+    // Случайная остановка и смена цвета
+    if (Math.random() < 0.015) {
         toggleMovement();
+        if (!isMoving) {
+            character.style.backgroundColor = '#44ff44';
+        } else {
+            character.style.backgroundColor = '#ff4444';
+        }
     }
 }
 
 function toggleMovement() {
     isMoving = !isMoving;
-    character.classList.toggle('walk');
     if (isMoving) setTimeout(toggleMovement, Math.random() * 2000 + 1000);
 }
 
-// Старт анимации
-character.classList.add('walk');
+// Старт движения
 setInterval(moveCharacter, 1000/60);
 
-// Поворот при клике для теста
+// Клик меняет размер
 character.addEventListener('click', () => {
-    direction *= -1;
-    character.style.transform = `scaleX(${direction})`;
+    character.style.transform = `scale(${Math.random() * 0.5 + 0.8})`;
 });
