@@ -1,0 +1,29 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #f0f0f0;
+}
+
+.game-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+.character {
+    width: 64px;
+    height: 64px;
+    position: absolute;
+    background: url('sprite.png') 0 0;
+    image-rendering: pixelated;
+    transition: transform 0.2s;
+}
+
+.walk {
+    animation: walk 0.6s steps(4) infinite;
+}
+
+@keyframes walk {
+    from { background-position: 0 0; }
+    to { background-position: -256px 0; }
+}
