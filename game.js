@@ -1,6 +1,6 @@
 const character = document.getElementById('character');
-let posX = 500;
-let posY = 300;
+let posX = window.innerWidth / 2 - 32;
+let posY = window.innerHeight / 2 - 32;
 let direction = 1;
 let isMoving = true;
 
