@@ -1,7 +1,8 @@
 body {
     margin: 0;
     overflow: hidden;
-    background: #f0f0f0;
+    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+    font-family: Arial, sans-serif;
 }
 
 .game-container {
@@ -10,12 +11,31 @@ body {
     position: relative;
 }
 
-.character {
-    width: 40px;
-    height: 40px;
+#character {
+    width: 30px;
+    height: 30px;
     position: absolute;
-    background: #ff4444;
+    background: #ff6b6b;
     border-radius: 50%;
-    transition: all 0.3s;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.3s ease-out;
+    box-shadow: 0 0 15px rgba(255,107,107,0.5);
+    cursor: pointer;
+}
+
+#counter {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    color: #fff;
+    font-size: 18px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+
+.trail {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: rgba(255,107,107,0.6);
+    border-radius: 50%;
+    pointer-events: none;
 }
