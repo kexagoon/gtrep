@@ -1,53 +1,80 @@
-class Walker {
+class WalkerGame {
     constructor() {
         this.character = document.getElementById('character');
         this.counter = document.getElementById('counter');
         this.trails = [];
         this.steps = 0;
         this.isMoving = true;
-        this.speed = 3;
-        this.baseSize = 40;
-        
-        this.initPosition();
+        this.speed = 2;
+        this.baseSize = 50;
+        this.directionChangeInterval = 60;
+        this.frameCount = 0;
+
+        // Инициализация
+        this.initCharacter();
         this.initEventListeners();
         this.startGameLoop();
     }
 
-    initPosition() {
-        const rect = this.character.getBoundingClientRect();
-        this.posX = window.innerWidth/2 - rect.width/2;
-        this.posY = window.innerHeight/2 - rect.height/2;
+    initCharacter() {
+        // Гарантированная видимая начальная позиция
+        this.posX = window.innerWidth / 2 - this.baseSize / 2;
+        this.posY = window.innerHeight / 2 - this.baseSize / 2;
         this.updatePosition();
+        
+        // Яркий начальный цвет
+        this.character.style.backgroundColor = '#ff4444';
+        this.character.style.boxShadow = '0 0 25px rgba(255, 68, 68, 0.7)';
     }
 
     initEventListeners() {
-        window.addEventListener('resize', () => this.handleResize());
-        this.character.addEventListener('click', () => this.changeAppearance());
+        window.addEventListener('resize', this.handleResize.bind(this));
+        this.character.addEventListener('click', this.changeAppearance.bind(this));
     }
 
     startGameLoop() {
-        const move = () => {
-            if(this.isMoving) {
-                this.move();
+        const gameLoop = () => {
+            if (this.isMoving) {
+                this.moveCharacter();
                 this.createTrail();
                 this.steps++;
                 this.counter.textContent = `Steps: ${this.steps}`;
-                
-                if(Math.random() < 0.01) this.toggleMovement();
             }
-            requestAnimationFrame(move);
+            requestAnimationFrame(gameLoop);
         };
-        move();
+        gameLoop();
     }
 
-    move() {
-        const angle = Math.random() * Math.PI * 2;
-        const newX = this.posX + Math.cos(angle) * this.speed;
-        const newY = this.posY + Math.sin(angle) * this.speed;
-
-        this.posX = Math.max(0, Math.min(newX, window.innerWidth - this.baseSize));
-        this.posY = Math.max(0, Math.min(newY, window.innerHeight - this.baseSize));
+    moveCharacter() {
+        this.frameCount++;
         
+        // Меняем направление через определенные интервалы
+        if (this.frameCount % this.directionChangeInterval === 0) {
+            this.currentAngle = Math.random() * Math.PI * 2;
+            
+            // Случайная остановка
+            if (Math.random() < 0.1) {
+                this.toggleMovement();
+            }
+        }
+
+        const moveX = Math.cos(this.currentAngle) * this.speed;
+        const moveY = Math.sin(this.currentAngle) * this.speed;
+
+        this.posX += moveX;
+        this.posY += moveY;
+
+        // Проверка границ с "отскоком"
+        if (this.posX <= 0 || this.posX >= window.innerWidth - this.baseSize) {
+            this.currentAngle = Math.PI - this.currentAngle;
+            this.posX = Math.max(0, Math.min(this.posX, window.innerWidth - this.baseSize));
+        }
+        
+        if (this.posY <= 0 || this.posY >= window.innerHeight - this.baseSize) {
+            this.currentAngle = -this.currentAngle;
+            this.posY = Math.max(0, Math.min(this.posY, window.innerHeight - this.baseSize));
+        }
+
         this.updatePosition();
     }
 
@@ -59,30 +86,43 @@ class Walker {
     createTrail() {
         const trail = document.createElement('div');
         trail.className = 'trail';
-        trail.style.left = `${this.posX + this.baseSize/2}px`;
-        trail.style.top = `${this.posY + this.baseSize/2}px`;
+        trail.style.left = `${this.posX + this.baseSize/2 - 5}px`;
+        trail.style.top = `${this.posY + this.baseSize/2 - 5}px`;
         document.body.appendChild(trail);
-        
-        setTimeout(() => {
-            trail.style.opacity = '0';
-            setTimeout(() => trail.remove(), 1000);
-        }, 100);
+
+        // Плавное исчезновение следа
+        let opacity = 0.6;
+        const fadeInterval = setInterval(() => {
+            opacity -= 0.02;
+            trail.style.opacity = opacity;
+            if (opacity <= 0) {
+                clearInterval(fadeInterval);
+                trail.remove();
+            }
+        }, 50);
     }
 
     toggleMovement() {
         this.isMoving = !this.isMoving;
-        this.character.style.backgroundColor = this.isMoving ? '#ff4444' : '#44ff44';
-        if(!this.isMoving) setTimeout(() => this.toggleMovement(), 1000 + Math.random() * 2000);
+        if (this.isMoving) {
+            this.character.style.backgroundColor = '#ff4444';
+            this.character.style.boxShadow = '0 0 25px rgba(255, 68, 68, 0.7)';
+        } else {
+            this.character.style.backgroundColor = '#44ff44';
+            this.character.style.boxShadow = '0 0 25px rgba(68, 255, 68, 0.7)';
+            setTimeout(() => this.toggleMovement(), 1500 + Math.random() * 2000);
+        }
     }
 
     changeAppearance() {
-        const randomHue = Math.floor(Math.random() * 360);
-        const newSize = 30 + Math.random() * 20;
+        const hue = Math.floor(Math.random() * 360);
+        const size = 40 + Math.floor(Math.random() * 30);
         
-        this.character.style.backgroundColor = `hsl(${randomHue}, 70%, 60%)`;
-        this.character.style.width = `${newSize}px`;
-        this.character.style.height = `${newSize}px`;
-        this.baseSize = newSize;
+        this.baseSize = size;
+        this.character.style.width = `${size}px`;
+        this.character.style.height = `${size}px`;
+        this.character.style.backgroundColor = `hsl(${hue}, 80%, 60%)`;
+        this.character.style.boxShadow = `0 0 25px hsl(${hue}, 80%, 50%)`;
     }
 
     handleResize() {
@@ -92,5 +132,7 @@ class Walker {
     }
 }
 
-// Инициализация при полной загрузке страницы
-window.addEventListener('load', () => new Walker());
+// Запуск игры после полной загрузки страницы
+window.addEventListener('load', () => {
+    new WalkerGame();
+});
