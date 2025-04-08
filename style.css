@@ -1,7 +1,7 @@
 body {
     margin: 0;
     overflow: hidden;
-    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+    background: #1a1a1a;
     font-family: Arial, sans-serif;
 }
 
@@ -9,33 +9,39 @@ body {
     width: 100vw;
     height: 100vh;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #character {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     position: absolute;
-    background: #ff6b6b;
+    background: #ff4444;
     border-radius: 50%;
-    transition: all 0.3s ease-out;
-    box-shadow: 0 0 15px rgba(255,107,107,0.5);
+    transition: all 0.3s;
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
     cursor: pointer;
+    z-index: 2;
 }
 
 #counter {
     position: fixed;
-    top: 20px;
-    left: 20px;
+    top: 15px;
+    left: 15px;
     color: #fff;
-    font-size: 18px;
+    font-size: 1.2em;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    z-index: 3;
 }
 
 .trail {
     position: absolute;
     width: 8px;
     height: 8px;
-    background: rgba(255,107,107,0.6);
+    background: rgba(255, 68, 68, 0.6);
     border-radius: 50%;
     pointer-events: none;
+    z-index: 1;
 }
