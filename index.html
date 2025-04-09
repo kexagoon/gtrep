@@ -46,14 +46,10 @@
             50% { opacity: 0.3; }
             100% { opacity: 1; }
         }
-        .obstacle {
-            position: absolute;
-            background: gray;
-            z-index: 15;
-        }
         .particle {
             position: absolute;
             border-radius: 50%;
+            pointer-events: none;
             z-index: 5;
         }
     </style>
@@ -63,8 +59,6 @@
     <div id="red-ball" class="ball"></div>
     <div id="green-ball" class="ball"></div>
     <div id="blue-ball" class="ball"></div>
-    <div class="obstacle" style="width: 100px; height: 20px; left: 300px; top: 200px;"></div>
-    <div class="obstacle" style="width: 20px; height: 150px; left: 500px; top: 300px;"></div>
     <script src="game.js"></script>
 </body>
 </html>
