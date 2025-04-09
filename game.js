@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
         sizeThreshold: 150,
         stuckTimeThreshold: 3000,
         maxBalls: 20,
-        restitution: 0.9 // Коэффициент упругости (0.9 для плавности)
+        restitution: 0.7, // Уменьшен для мягкости
+        speedReductionTime: 3000 // 3 секунды для временного замедления
     };
 
     let balls = [
@@ -51,8 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
             dy: Math.sin(angle) * config.baseSpeed,
             size,
             speed: config.baseSpeed,
+            baseSpeed: config.baseSpeed, // Исходная скорость для восстановления
             stuckTime: 0,
-            mass: size // Масса пропорциональна размеру
+            mass: size,
+            speedReductionEnd: 0 // Время окончания замедления
         };
     }
 
@@ -87,8 +90,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }, config.particleLife);
     }
 
-    function updateBallSpeed(ball) {
+    function updateBallSpeed(ball, currentTime) {
         const currentSpeed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+        if (currentTime && ball.speedReductionEnd > currentTime) {
+            // Временное замедление активно
+            ball.speed = Math.max(currentSpeed * 0.5, config.minSpeed); // Уменьшаем скорость на 50%
+        } else {
+            // Восстанавливаем исходную скорость
+            ball.speed = Math.max(ball.baseSpeed, currentSpeed);
+            ball.speedReductionEnd = 0;
+        }
+
         if (currentSpeed < config.minSpeed || isNaN(currentSpeed)) {
             const angle = Math.random() * Math.PI * 2;
             ball.speed = config.minSpeed;
@@ -100,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ball.dx = Math.cos(angle) * ball.speed;
             ball.dy = Math.sin(angle) * ball.speed;
         }
-        ball.mass = ball.size; // Обновляем массу при изменении размера
+        ball.mass = ball.size;
     }
 
     function handleSmileyCollision(ball) {
@@ -109,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             smiley = null;
         }
         ball.size = Math.min(ball.size * config.sizeIncrease, config.maxSize);
-        ball.speed *= config.speedIncrease;
+        ball.baseSpeed *= config.speedIncrease; // Увеличиваем базовую скорость
         updateBallSpeed(ball);
         score++;
         scoreDisplay.textContent = `Смайлики: ${score}`;
@@ -124,27 +136,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const dx = ball1.x + ball1.size / 2 - (ball2.x + ball2.size / 2);
         const dy = ball1.y + ball1.size / 2 - (ball2.y + ball2.size / 2);
         const distance = Math.sqrt(dx * dx + dy * dy);
-        return distance <= (ball1.size / 2 + ball2.size / 2); // Точное касание краёв
+        return distance <= (ball1.size / 2 + ball2.size / 2);
     }
 
-    function handleBallCollision(ball1, ball2) {
+    function handleBallCollision(ball1, ball2, currentTime) {
         const dx = ball2.x + ball2.size / 2 - (ball1.x + ball1.size / 2);
         const dy = ball2.y + ball2.size / 2 - (ball1.y + ball1.size / 2);
         const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance === 0) return; // Избегаем деления на ноль
+        if (distance === 0) return;
 
         const nx = dx / distance;
         const ny = dy / distance;
 
-        // Относительная скорость
         const relativeVx = ball1.dx - ball2.dx;
         const relativeVy = ball1.dy - ball2.dy;
         const dotProduct = relativeVx * nx + relativeVy * ny;
 
-        if (dotProduct > 0) return; // Шары уже расходятся
+        if (dotProduct > 0) return;
 
-        // Реалистичная физика с учётом массы и упругости
         const m1 = ball1.mass;
         const m2 = ball2.mass;
         const totalMass = m1 + m2;
@@ -155,15 +164,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const v1Final = (m1 - config.restitution * m2) * v1 / totalMass + (1 + config.restitution) * m2 * v2 / totalMass;
         const v2Final = (m2 - config.restitution * m1) * v2 / totalMass + (1 + config.restitution) * m1 * v1 / totalMass;
 
-        ball1.dx += (v1Final - v1) * nx;
-        ball1.dy += (v1Final - v1) * ny;
-        ball2.dx += (v2Final - v2) * nx;
-        ball2.dy += (v2Final - v2) * ny;
+        // Плавное изменение скорости
+        ball1.dx += (v1Final - v1) * nx * 0.5; // Уменьшаем резкость
+        ball1.dy += (v1Final - v1) * ny * 0.5;
+        ball2.dx += (v2Final - v2) * nx * 0.5;
+        ball2.dy += (v2Final - v2) * ny * 0.5;
 
-        // Раздвигаем шары, чтобы избежать залипания
+        // Временное замедление на 3 секунды
+        ball1.speedReductionEnd = currentTime + config.speedReductionTime;
+        ball2.speedReductionEnd = currentTime + config.speedReductionTime;
+
         const overlap = (ball1.size / 2 + ball2.size / 2) - distance;
         if (overlap > 0) {
-            const pushFactor = 0.5; // Плавное раздвигание
+            const pushFactor = 0.3; // Мягкое раздвигание
             ball1.x -= overlap * nx * pushFactor;
             ball1.y -= overlap * ny * pushFactor;
             ball2.x += overlap * nx * pushFactor;
@@ -182,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const overlap = (ball1.size / 2 + ball2.size / 2) - distance;
         if (overlap > 0) {
-            const pushForce = 5; // Плавное, но заметное разведение
+            const pushForce = 3; // Мягкое разведение
             ball1.dx -= pushForce * nx;
             ball1.dy -= pushForce * ny;
             ball2.dx += pushForce * nx;
@@ -199,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (ball.size >= config.sizeThreshold && balls.length < config.maxBalls) {
             ball.size = config.baseSize;
             ball.speed = config.baseSpeed;
+            ball.baseSpeed = config.baseSpeed; // Сбрасываем базовую скорость
             updateBallSpeed(ball);
 
             const newBall = createBall(null, ball.color);
@@ -206,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function checkCollisions() {
+    function checkCollisions(currentTime) {
         if (smiley) {
             const smileyRect = smiley.getBoundingClientRect();
             balls.forEach(ball => {
@@ -225,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < balls.length; i++) {
             for (let j = i + 1; j < balls.length; j++) {
                 if (isBallsColliding(balls[i], balls[j])) {
-                    handleBallCollision(balls[i], balls[j]);
+                    handleBallCollision(balls[i], balls[j], currentTime);
                     balls[i].stuckTime += 16;
                     balls[j].stuckTime += 16;
 
@@ -253,26 +267,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 ball.x += ball.dx * 60 * deltaTime;
                 ball.y += ball.dy * 60 * deltaTime;
 
-                // Плавные отскоки от стен
                 if (ball.x < 0) {
                     ball.x = 0;
                     ball.dx = Math.abs(ball.dx) * config.restitution;
-                    updateBallSpeed(ball);
+                    updateBallSpeed(ball, currentTime);
                 }
                 if (ball.x > window.innerWidth - ball.size) {
                     ball.x = window.innerWidth - ball.size;
                     ball.dx = -Math.abs(ball.dx) * config.restitution;
-                    updateBallSpeed(ball);
+                    updateBallSpeed(ball, currentTime);
                 }
                 if (ball.y < 0) {
                     ball.y = 0;
                     ball.dy = Math.abs(ball.dy) * config.restitution;
-                    updateBallSpeed(ball);
+                    updateBallSpeed(ball, currentTime);
                 }
                 if (ball.y > window.innerHeight - ball.size) {
                     ball.y = window.innerHeight - ball.size;
                     ball.dy = -Math.abs(ball.dy) * config.restitution;
-                    updateBallSpeed(ball);
+                    updateBallSpeed(ball, currentTime);
                 }
 
                 ball.element.style.left = `${ball.x}px`;
@@ -282,9 +295,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 createParticle(ball.x + ball.size / 2, ball.y + ball.size / 2, ball.color);
                 checkBallSize(ball);
+                updateBallSpeed(ball, currentTime); // Обновляем скорость с учётом времени
             });
 
-            checkCollisions();
+            checkCollisions(currentTime);
         } catch (error) {
             console.error('Ошибка в игровом цикле:', error);
         }
