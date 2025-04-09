@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Эволюция существ</title>
     <style>
-        body, html {
+        html, body {
             margin: 0;
             padding: 0;
             background: #111;
@@ -12,77 +12,143 @@
             font-family: sans-serif;
             overflow: hidden;
         }
+
         canvas {
             display: block;
         }
-        #ui {
+
+        #open-settings {
             position: absolute;
             top: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.6);
-            padding: 10px;
-            border-radius: 8px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
             font-size: 14px;
-            max-height: 95vh;
+            color: #fff;
+        }
+
+        #settings-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 320px;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 15px;
+            box-sizing: border-box;
             overflow-y: auto;
+            display: none;
+            z-index: 10;
         }
-        #ui label {
-            display: block;
-            margin-top: 5px;
-        }
-        #ui input[type="number"] {
-            width: 60px;
-        }
-        fieldset {
-            border: 1px solid #444;
+
+        #settings-panel h3 {
             margin-top: 10px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 3px;
         }
-        legend {
+
+        .subgroup {
+            margin-left: 10px;
+            padding-left: 10px;
+            border-left: 2px solid #333;
+        }
+
+        .subgroup label {
+            display: block;
+            margin: 4px 0;
+        }
+
+        input[type="number"], input[type="checkbox"] {
+            width: 60px;
+            margin-left: 5px;
+        }
+
+        .setting-title {
             font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .collapsible-content {
+            display: none;
+        }
+
+        .collapsible-content.open {
+            display: block;
+        }
+
+        button {
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 <canvas id="simulation"></canvas>
 
-<div id="ui">
-    <b>Глобальные настройки:</b>
+<div id="open-settings">⚙ Настройки</div>
+
+<div id="settings-panel">
+    <button onclick="toggleSettings()">Закрыть</button>
+
+    <h3>Глобальные настройки</h3>
     <label>Макс. существ: <input type="number" id="maxCreatures" value="150"></label>
     <label>Шанс мутации: <input type="number" id="mutationChance" value="0.1" step="0.01"></label>
     <label>Макс. еды: <input type="number" id="maxFood" value="50"></label>
     <label>Размер существ: <input type="number" id="radius" value="5"></label>
 
-    <fieldset>
-        <legend>Красные</legend>
-        <label><input type="checkbox" id="enableRed" checked> Участвуют</label>
-        <label>Начало: <input type="number" id="startRed" value="20"></label>
-        <label>Скорость: <input type="number" id="speedRed" value="1.5" step="0.1"></label>
-        <label>Агрессия: <input type="number" id="aggrRed" value="0.7" step="0.1"></label>
-        <label>Жадность: <input type="number" id="hungRed" value="0.5" step="0.1"></label>
-    </fieldset>
+    <h3 class="setting-title" onclick="toggleCollapse(this)">Красные ▼</h3>
+    <div class="collapsible-content open">
+        <div class="subgroup">
+            <label><input type="checkbox" id="enableRed" checked> Участвуют</label>
+            <label>Начальное кол-во: <input type="number" id="startRed" value="20"></label>
+            <label>Скорость: <input type="number" id="speedRed" value="1.5" step="0.1"></label>
+            <label>Агрессия: <input type="number" id="aggrRed" value="0.7" step="0.1"></label>
+            <label>Жадность: <input type="number" id="hungRed" value="0.5" step="0.1"></label>
+        </div>
+    </div>
 
-    <fieldset>
-        <legend>Зелёные</legend>
-        <label><input type="checkbox" id="enableGreen" checked> Участвуют</label>
-        <label>Начало: <input type="number" id="startGreen" value="20"></label>
-        <label>Скорость: <input type="number" id="speedGreen" value="1.2" step="0.1"></label>
-        <label>Агрессия: <input type="number" id="aggrGreen" value="0.3" step="0.1"></label>
-        <label>Жадность: <input type="number" id="hungGreen" value="0.8" step="0.1"></label>
-    </fieldset>
+    <h3 class="setting-title" onclick="toggleCollapse(this)">Зелёные ▼</h3>
+    <div class="collapsible-content open">
+        <div class="subgroup">
+            <label><input type="checkbox" id="enableGreen" checked> Участвуют</label>
+            <label>Начальное кол-во: <input type="number" id="startGreen" value="20"></label>
+            <label>Скорость: <input type="number" id="speedGreen" value="1.2" step="0.1"></label>
+            <label>Агрессия: <input type="number" id="aggrGreen" value="0.3" step="0.1"></label>
+            <label>Жадность: <input type="number" id="hungGreen" value="0.8" step="0.1"></label>
+        </div>
+    </div>
 
-    <fieldset>
-        <legend>Синие</legend>
-        <label><input type="checkbox" id="enableBlue" checked> Участвуют</label>
-        <label>Начало: <input type="number" id="startBlue" value="20"></label>
-        <label>Скорость: <input type="number" id="speedBlue" value="1.0" step="0.1"></label>
-        <label>Агрессия: <input type="number" id="aggrBlue" value="0.6" step="0.1"></label>
-        <label>Жадность: <input type="number" id="hungBlue" value="0.6" step="0.1"></label>
-    </fieldset>
+    <h3 class="setting-title" onclick="toggleCollapse(this)">Синие ▼</h3>
+    <div class="collapsible-content open">
+        <div class="subgroup">
+            <label><input type="checkbox" id="enableBlue" checked> Участвуют</label>
+            <label>Начальное кол-во: <input type="number" id="startBlue" value="20"></label>
+            <label>Скорость: <input type="number" id="speedBlue" value="1.0" step="0.1"></label>
+            <label>Агрессия: <input type="number" id="aggrBlue" value="0.6" step="0.1"></label>
+            <label>Жадность: <input type="number" id="hungBlue" value="0.6" step="0.1"></label>
+        </div>
+    </div>
 
     <button onclick="restartSimulation()">Перезапустить</button>
     <div id="stats" style="margin-top:10px;"></div>
 </div>
 
+<script>
+function toggleSettings() {
+    const panel = document.getElementById("settings-panel");
+    panel.style.display = panel.style.display === "block" ? "none" : "block";
+}
+function toggleCollapse(header) {
+    const content = header.nextElementSibling;
+    content.classList.toggle("open");
+    header.innerText = header.innerText.includes("▼")
+        ? header.innerText.replace("▼", "▲")
+        : header.innerText.replace("▲", "▼");
+}
+</script>
 <script src="main.js"></script>
 </body>
 </html>
