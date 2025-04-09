@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
         minSize: 25,
         maxSize: 250,
         maxSpeed: 10,
+        minSpeed: 0.5, // Минимальная скорость
         sizeIncrease: 1.15,
         speedIncrease: 1.15,
         particleLife: 1000,
@@ -12,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
         particleSizeMax: 15,
         particleOpacityMin: 0.3,
         particleOpacityMax: 0.8,
-        sizeThreshold: 150 // 300% от baseSize
+        sizeThreshold: 150, // 300% от baseSize
+        stuckTimeThreshold: 3000 // 3 секунды для разведения
     };
 
     let balls = [
@@ -45,7 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
             dx: Math.cos(angle) * config.baseSpeed,
             dy: Math.sin(angle) * config.baseSpeed,
             size,
-            speed: config.baseSpeed
+            speed: config.baseSpeed,
+            stuckTime: 0 // Время "слипания" с другим шариком
         };
     }
 
@@ -81,10 +84,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateBallSpeed(ball) {
-        const angle = Math.atan2(ball.dy, ball.dx);
-        ball.speed = Math.min(ball.speed, config.maxSpeed);
-        ball.dx = Math.cos(angle) * ball.speed;
-        ball.dy = Math.sin(angle) * ball.speed;
+        const currentSpeed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+        if (currentSpeed < config.minSpeed) {
+            const angle = Math.atan2(ball.dy, ball.dx);
+            ball.speed = config.minSpeed;
+            ball.dx = Math.cos(angle) * ball.speed;
+            ball.dy = Math.sin(angle) * ball.speed;
+        } else {
+            ball.speed = Math.min(ball.speed, config.maxSpeed);
+            const angle = Math.atan2(ball.dy, ball.dx);
+            ball.dx = Math.cos(angle) * ball.speed;
+            ball.dy = Math.sin(angle) * ball.speed;
+        }
     }
 
     function handleSmileyCollision(ball) {
@@ -110,39 +121,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleBallCollision(ball1, ball2) {
-        // Вычисляем нормаль столкновения
         const dx = ball2.x - ball1.x;
         const dy = ball2.y - ball1.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         const nx = dx / distance;
         const ny = dy / distance;
 
-        // Относительная скорость
         const relativeVx = ball1.dx - ball2.dx;
         const relativeVy = ball1.dy - ball2.dy;
         const dotProduct = relativeVx * nx + relativeVy * ny;
 
-        // Если шарики движутся друг от друга, не обрабатываем
         if (dotProduct > 0) return;
 
-        // Коэффициент упругости
         const restitution = 1;
-
-        // Импульс
         const impulse = (2 * dotProduct) / (ball1.size + ball2.size);
         ball1.dx -= impulse * ball2.size * nx;
         ball1.dy -= impulse * ball2.size * ny;
         ball2.dx += impulse * ball1.size * nx;
         ball2.dy += impulse * ball1.size * ny;
 
-        // Увеличенное раздвигание шариков
         const overlap = (ball1.size / 2 + ball2.size / 2) - distance;
         if (overlap > 0) {
-            const pushFactor = 1.1; // Увеличим раздвигание
+            const pushFactor = 1.1;
             ball1.x -= overlap * nx * pushFactor * 0.5;
             ball1.y -= overlap * ny * pushFactor * 0.5;
             ball2.x += overlap * nx * pushFactor * 0.5;
             ball2.y += overlap * ny * pushFactor * 0.5;
+        }
+    }
+
+    function forceSeparateBalls(ball1, ball2) {
+        const dx = ball2.x - ball1.x;
+        const dy = ball2.y - ball1.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const nx = dx / distance;
+        const ny = dy / distance;
+
+        const overlap = (ball1.size / 2 + ball2.size / 2) - distance;
+        if (overlap > 0) {
+            const pushForce = 10; // Сильное раздвигание
+            ball1.dx -= pushForce * nx;
+            ball1.dy -= pushForce * ny;
+            ball2.dx += pushForce * nx;
+            ball2.dy += pushForce * ny;
+
+            ball1.x -= overlap * nx * 0.5;
+            ball1.y -= overlap * ny * 0.5;
+            ball2.x += overlap * nx * 0.5;
+            ball2.y += overlap * ny * 0.5;
         }
     }
 
@@ -173,11 +199,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Проверка столкновений между шариками
         for (let i = 0; i < balls.length; i++) {
             for (let j = i + 1; j < balls.length; j++) {
                 if (isBallsColliding(balls[i], balls[j])) {
                     handleBallCollision(balls[i], balls[j]);
+                    balls[i].stuckTime += 16; // Примерно 16мс на кадр
+                    balls[j].stuckTime += 16;
+
+                    if (balls[i].stuckTime >= config.stuckTimeThreshold) {
+                        forceSeparateBalls(balls[i], balls[j]);
+                        balls[i].stuckTime = 0;
+                        balls[j].stuckTime = 0;
+                    }
+                } else {
+                    balls[i].stuckTime = 0;
+                    balls[j].stuckTime = 0;
                 }
             }
         }
@@ -193,10 +229,10 @@ document.addEventListener('DOMContentLoaded', () => {
             ball.x += ball.dx * 60 * deltaTime;
             ball.y += ball.dy * 60 * deltaTime;
 
-            if (ball.x < 0) { ball.x = 0; ball.dx = Math.abs(ball.dx); }
-            if (ball.x > window.innerWidth - ball.size) { ball.x = window.innerWidth - ball.size; ball.dx = -Math.abs(ball.dx); }
-            if (ball.y < 0) { ball.y = 0; ball.dy = Math.abs(ball.dy); }
-            if (ball.y > window.innerHeight - ball.size) { ball.y = window.innerHeight - ball.size; ball.dy = -Math.abs(ball.dy); }
+            if (ball.x < 0) { ball.x = 0; ball.dx = Math.abs(ball.dx); updateBallSpeed(ball); }
+            if (ball.x > window.innerWidth - ball.size) { ball.x = window.innerWidth - ball.size; ball.dx = -Math.abs(ball.dx); updateBallSpeed(ball); }
+            if (ball.y < 0) { ball.y = 0; ball.dy = Math.abs(ball.dy); updateBallSpeed(ball); }
+            if (ball.y > window.innerHeight - ball.size) { ball.y = window.innerHeight - ball.size; ball.dy = -Math.abs(ball.dy); updateBallSpeed(ball); }
 
             ball.element.style.left = `${ball.x}px`;
             ball.element.style.top = `${ball.y}px`;
