@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Конфигурация игры
     const config = {
         baseSpeed: 2,
         baseSize: 50,
         minSize: 25,
         maxSize: 250,
-        maxSpeed: 10, // Ограничение максимальной скорости
+        maxSpeed: 10,
         sizeIncrease: 1.15,
         speedIncrease: 1.15,
         particleLife: 1000,
@@ -13,10 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
         particleSizeMax: 15,
         particleOpacityMin: 0.3,
         particleOpacityMax: 0.8,
-        sizeThreshold: 150 // 300% от baseSize (50 * 3)
+        sizeThreshold: 150 // 300% от baseSize
     };
 
-    // Массив шариков
     let balls = [
         createBall('red-ball', 'red'),
         createBall('green-ball', 'green'),
@@ -27,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const scoreDisplay = document.getElementById('score-display');
     let smiley = null;
 
-    // Создание шарика
     function createBall(id, color) {
         const element = id ? document.getElementById(id) : document.createElement('div');
         if (!id) {
@@ -52,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Создание смайлика
     function createSmiley() {
         if (smiley) return;
         const smileys = ['😀', '😎', '🤩', '😍', '🥳', '🤪'];
@@ -64,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(smiley);
     }
 
-    // Создание частицы
     function createParticle(x, y, color) {
         const size = Math.random() * (config.particleSizeMax - config.particleSizeMin) + config.particleSizeMin;
         const opacity = Math.random() * (config.particleOpacityMax - config.particleOpacityMin) + config.particleOpacityMin;
@@ -85,15 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }, config.particleLife);
     }
 
-    // Обновление скорости с ограничением
     function updateBallSpeed(ball) {
         const angle = Math.atan2(ball.dy, ball.dx);
-        ball.speed = Math.min(ball.speed, config.maxSpeed); // Ограничиваем скорость
+        ball.speed = Math.min(ball.speed, config.maxSpeed);
         ball.dx = Math.cos(angle) * ball.speed;
         ball.dy = Math.sin(angle) * ball.speed;
     }
 
-    // Обработка столкновения со смайликом
     function handleSmileyCollision(ball) {
         smiley.remove();
         smiley = null;
@@ -109,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(createSmiley, 20000);
     }
 
-    // Проверка столкновения шариков
     function isBallsColliding(ball1, ball2) {
         const dx = ball1.x + ball1.size / 2 - (ball2.x + ball2.size / 2);
         const dy = ball1.y + ball1.size / 2 - (ball2.y + ball2.size / 2);
@@ -117,19 +109,44 @@ document.addEventListener('DOMContentLoaded', () => {
         return distance < (ball1.size / 2 + ball2.size / 2);
     }
 
-    // Обработка столкновения шариков (отскок)
     function handleBallCollision(ball1, ball2) {
-        const tempDx = ball1.dx;
-        const tempDy = ball1.dy;
-        ball1.dx = ball2.dx;
-        ball1.dy = ball2.dy;
-        ball2.dx = tempDx;
-        ball2.dy = tempDy;
+        // Более точная физика отскока
+        const dx = ball2.x - ball1.x;
+        const dy = ball2.y - ball1.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const nx = dx / distance; // Нормализованный вектор по X
+        const ny = dy / distance; // Нормализованный вектор по Y
+
+        // Вычисляем относительную скорость
+        const relativeVx = ball1.dx - ball2.dx;
+        const relativeVy = ball1.dy - ball2.dy;
+        const dotProduct = relativeVx * nx + relativeVy * ny;
+
+        // Если шарики движутся навстречу друг другу
+        if (dotProduct > 0) return;
+
+        // Коэффициент упругости (1 = полностью упругий отскок)
+        const restitution = 1;
+
+        // Импульс
+        const impulse = 2 * dotProduct / (ball1.size + ball2.size);
+        ball1.dx -= impulse * ball2.size * nx;
+        ball1.dy -= impulse * ball2.size * ny;
+        ball2.dx += impulse * ball1.size * nx;
+        ball2.dy += impulse * ball1.size * ny;
+
+        // Раздвигаем шарики, чтобы они не залипали
+        const overlap = (ball1.size / 2 + ball2.size / 2) - distance;
+        if (overlap > 0) {
+            ball1.x -= overlap * nx * 0.5;
+            ball1.y -= overlap * ny * 0.5;
+            ball2.x += overlap * nx * 0.5;
+            ball2.y += overlap * ny * 0.5;
+        }
     }
 
-    // Проверка размера и сброс
     function checkBallSize(ball) {
-        if (ball.size >= config.sizeThreshold) { // 300% от начального размера
+        if (ball.size >= config.sizeThreshold) {
             ball.size = config.baseSize;
             ball.speed = config.baseSpeed;
             updateBallSpeed(ball);
@@ -139,9 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Проверка всех столкновений
     function checkCollisions() {
-        // Столкновение со смайликом
         if (smiley) {
             const smileyRect = smiley.getBoundingClientRect();
             balls.forEach(ball => {
@@ -157,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Столкновение шариков друг с другом
         for (let i = 0; i < balls.length; i++) {
             for (let j = i + 1; j < balls.length; j++) {
                 if (isBallsColliding(balls[i], balls[j])) {
@@ -167,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Игровой цикл
     let lastTime = performance.now();
     function gameLoop() {
         const currentTime = performance.now();
@@ -178,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ball.x += ball.dx * 60 * deltaTime;
             ball.y += ball.dy * 60 * deltaTime;
 
-            // Отскок от краёв
             if (ball.x < 0) { ball.x = 0; ball.dx = Math.abs(ball.dx); }
             if (ball.x > window.innerWidth - ball.size) { ball.x = window.innerWidth - ball.size; ball.dx = -Math.abs(ball.dx); }
             if (ball.y < 0) { ball.y = 0; ball.dy = Math.abs(ball.dy); }
@@ -197,7 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(gameLoop);
     }
 
-    // Запуск игры
     createSmiley();
     gameLoop();
 });
