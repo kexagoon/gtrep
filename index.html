@@ -23,28 +23,66 @@
             padding: 10px;
             border-radius: 8px;
             font-size: 14px;
+            max-height: 95vh;
+            overflow-y: auto;
         }
         #ui label {
             display: block;
             margin-top: 5px;
         }
-        #ui input {
+        #ui input[type="number"] {
             width: 60px;
+        }
+        fieldset {
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        legend {
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <canvas id="simulation"></canvas>
-    <div id="ui">
-        <div><b>Настройки:</b></div>
-        <label>Стартовые существа: <input type="number" id="startCount" value="60"></label>
-        <label>Макс. существа: <input type="number" id="maxCreatures" value="150"></label>
-        <label>Шанс мутации: <input type="number" id="mutationChance" value="0.1" step="0.01"></label>
-        <label>Кол-во еды: <input type="number" id="maxFood" value="50"></label>
-        <label>Размер: <input type="number" id="radius" value="5"></label>
-        <button onclick="restartSimulation()">Перезапустить</button>
-        <div id="stats" style="margin-top:10px;"></div>
-    </div>
-    <script src="main.js"></script>
+<canvas id="simulation"></canvas>
+
+<div id="ui">
+    <b>Глобальные настройки:</b>
+    <label>Макс. существ: <input type="number" id="maxCreatures" value="150"></label>
+    <label>Шанс мутации: <input type="number" id="mutationChance" value="0.1" step="0.01"></label>
+    <label>Макс. еды: <input type="number" id="maxFood" value="50"></label>
+    <label>Размер существ: <input type="number" id="radius" value="5"></label>
+
+    <fieldset>
+        <legend>Красные</legend>
+        <label><input type="checkbox" id="enableRed" checked> Участвуют</label>
+        <label>Начало: <input type="number" id="startRed" value="20"></label>
+        <label>Скорость: <input type="number" id="speedRed" value="1.5" step="0.1"></label>
+        <label>Агрессия: <input type="number" id="aggrRed" value="0.7" step="0.1"></label>
+        <label>Жадность: <input type="number" id="hungRed" value="0.5" step="0.1"></label>
+    </fieldset>
+
+    <fieldset>
+        <legend>Зелёные</legend>
+        <label><input type="checkbox" id="enableGreen" checked> Участвуют</label>
+        <label>Начало: <input type="number" id="startGreen" value="20"></label>
+        <label>Скорость: <input type="number" id="speedGreen" value="1.2" step="0.1"></label>
+        <label>Агрессия: <input type="number" id="aggrGreen" value="0.3" step="0.1"></label>
+        <label>Жадность: <input type="number" id="hungGreen" value="0.8" step="0.1"></label>
+    </fieldset>
+
+    <fieldset>
+        <legend>Синие</legend>
+        <label><input type="checkbox" id="enableBlue" checked> Участвуют</label>
+        <label>Начало: <input type="number" id="startBlue" value="20"></label>
+        <label>Скорость: <input type="number" id="speedBlue" value="1.0" step="0.1"></label>
+        <label>Агрессия: <input type="number" id="aggrBlue" value="0.6" step="0.1"></label>
+        <label>Жадность: <input type="number" id="hungBlue" value="0.6" step="0.1"></label>
+    </fieldset>
+
+    <button onclick="restartSimulation()">Перезапустить</button>
+    <div id="stats" style="margin-top:10px;"></div>
+</div>
+
+<script src="main.js"></script>
 </body>
 </html>
