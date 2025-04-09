@@ -181,10 +181,10 @@ class Food {
     }
 
     draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = "yellow";
-        ctx.fill();
+        ctx.globalAlpha = 0.4;
+        ctx.fillStyle = "#f0e68c"; // мягкий жёлтый (khaki)
+        ctx.fillRect(this.x - 3, this.y - 3, 6, 6); // квадрат 6x6
+        ctx.globalAlpha = 1;
     }
 }
 
