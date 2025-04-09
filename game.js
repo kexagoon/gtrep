@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sizeThreshold: 150,
         stuckTimeThreshold: 3000,
         maxBalls: 20,
-        restitution: 0.7, // Уменьшен для мягкости
+        restitution: 0.6, // Мягкость для "космического" эффекта
         speedReductionTime: 3000 // 3 секунды для временного замедления
     };
 
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         element.style.backgroundColor = color;
         element.style.boxShadow = `0 0 15px ${color}`;
-        element.style.transition = 'width 0.2s, height 0.2s'; // Плавное изменение размера
+        element.style.transition = 'width 0.2s, height 0.2s';
 
         return {
             element,
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dy: Math.sin(angle) * config.baseSpeed,
             size,
             speed: config.baseSpeed,
-            baseSpeed: config.baseSpeed, // Исходная скорость для восстановления
+            baseSpeed: config.baseSpeed, // Исходная скорость
             stuckTime: 0,
             mass: size,
             speedReductionEnd: 0 // Время окончания замедления
@@ -93,11 +93,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateBallSpeed(ball, currentTime) {
         const currentSpeed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
         if (currentTime && ball.speedReductionEnd > currentTime) {
-            // Временное замедление активно
-            ball.speed = Math.max(currentSpeed * 0.5, config.minSpeed); // Уменьшаем скорость на 50%
+            ball.speed = Math.max(currentSpeed * 0.5, config.minSpeed); // Замедление на 50%
         } else {
-            // Восстанавливаем исходную скорость
-            ball.speed = Math.max(ball.baseSpeed, currentSpeed);
+            ball.speed = Math.max(ball.baseSpeed, currentSpeed); // Восстановление базовой скорости
             ball.speedReductionEnd = 0;
         }
 
@@ -115,14 +113,15 @@ document.addEventListener('DOMContentLoaded', () => {
         ball.mass = ball.size;
     }
 
-    function handleSmileyCollision(ball) {
+    function handleSmileyCollision(ball, currentTime) {
         if (smiley) {
             smiley.remove();
             smiley = null;
         }
         ball.size = Math.min(ball.size * config.sizeIncrease, config.maxSize);
         ball.baseSpeed *= config.speedIncrease; // Увеличиваем базовую скорость
-        updateBallSpeed(ball);
+        ball.speedReductionEnd = currentTime + config.speedReductionTime; // Замедление на 3 секунды
+        updateBallSpeed(ball, currentTime);
         score++;
         scoreDisplay.textContent = `Смайлики: ${score}`;
 
@@ -158,17 +157,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const m2 = ball2.mass;
         const totalMass = m1 + m2;
 
+        // Компоненты скорости вдоль нормали
         const v1 = ball1.dx * nx + ball1.dy * ny;
         const v2 = ball2.dx * nx + ball2.dy * ny;
 
+        // Плавные "космические" отскоки с учётом массы
         const v1Final = (m1 - config.restitution * m2) * v1 / totalMass + (1 + config.restitution) * m2 * v2 / totalMass;
         const v2Final = (m2 - config.restitution * m1) * v2 / totalMass + (1 + config.restitution) * m1 * v1 / totalMass;
 
         // Плавное изменение скорости
-        ball1.dx += (v1Final - v1) * nx * 0.5; // Уменьшаем резкость
-        ball1.dy += (v1Final - v1) * ny * 0.5;
-        ball2.dx += (v2Final - v2) * nx * 0.5;
-        ball2.dy += (v2Final - v2) * ny * 0.5;
+        const damping = 0.3; // Уменьшаем резкость для "космического" эффекта
+        ball1.dx += (v1Final - v1) * nx * damping;
+        ball1.dy += (v1Final - v1) * ny * damping;
+        ball2.dx += (v2Final - v2) * nx * damping;
+        ball2.dy += (v2Final - v2) * ny * damping;
 
         // Временное замедление на 3 секунды
         ball1.speedReductionEnd = currentTime + config.speedReductionTime;
@@ -176,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const overlap = (ball1.size / 2 + ball2.size / 2) - distance;
         if (overlap > 0) {
-            const pushFactor = 0.3; // Мягкое раздвигание
+            const pushFactor = 0.2; // Очень мягкое раздвигание
             ball1.x -= overlap * nx * pushFactor;
             ball1.y -= overlap * ny * pushFactor;
             ball2.x += overlap * nx * pushFactor;
@@ -195,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const overlap = (ball1.size / 2 + ball2.size / 2) - distance;
         if (overlap > 0) {
-            const pushForce = 3; // Мягкое разведение
+            const pushForce = 3;
             ball1.dx -= pushForce * nx;
             ball1.dy -= pushForce * ny;
             ball2.dx += pushForce * nx;
@@ -212,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (ball.size >= config.sizeThreshold && balls.length < config.maxBalls) {
             ball.size = config.baseSize;
             ball.speed = config.baseSpeed;
-            ball.baseSpeed = config.baseSpeed; // Сбрасываем базовую скорость
+            ball.baseSpeed = config.baseSpeed;
             updateBallSpeed(ball);
 
             const newBall = createBall(null, ball.color);
@@ -231,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ballRect.top < smileyRect.bottom &&
                     ballRect.bottom > smileyRect.top
                 ) {
-                    handleSmileyCollision(ball);
+                    handleSmileyCollision(ball, currentTime);
                 }
             });
         }
@@ -295,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 createParticle(ball.x + ball.size / 2, ball.y + ball.size / 2, ball.color);
                 checkBallSize(ball);
-                updateBallSpeed(ball, currentTime); // Обновляем скорость с учётом времени
+                updateBallSpeed(ball, currentTime);
             });
 
             checkCollisions(currentTime);
