@@ -52,10 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
             dy: Math.sin(angle) * config.baseSpeed,
             size,
             speed: config.baseSpeed,
-            baseSpeed: config.baseSpeed, // Исходная скорость
+            baseSpeed: config.baseSpeed,
             stuckTime: 0,
             mass: size,
-            speedReductionEnd: 0 // Время окончания замедления
+            speedReductionEnd: 0
         };
     }
 
@@ -93,9 +93,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateBallSpeed(ball, currentTime) {
         const currentSpeed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
         if (currentTime && ball.speedReductionEnd > currentTime) {
-            ball.speed = Math.max(currentSpeed * 0.5, config.minSpeed); // Замедление на 50%
+            ball.speed = Math.max(currentSpeed * 0.5, config.minSpeed);
         } else {
-            ball.speed = Math.max(ball.baseSpeed, currentSpeed); // Восстановление базовой скорости
+            ball.speed = Math.max(ball.baseSpeed, currentSpeed);
             ball.speedReductionEnd = 0;
         }
 
@@ -119,8 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
             smiley = null;
         }
         ball.size = Math.min(ball.size * config.sizeIncrease, config.maxSize);
-        ball.baseSpeed *= config.speedIncrease; // Увеличиваем базовую скорость без замедления
-        ball.speed *= config.speedIncrease; // Скорость увеличивается сразу
+        ball.baseSpeed *= config.speedIncrease;
+        ball.speed *= config.speedIncrease;
         updateBallSpeed(ball);
         score++;
         scoreDisplay.textContent = `Смайлики: ${score}`;
@@ -163,21 +163,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const v1Final = (m1 - config.restitution * m2) * v1 / totalMass + (1 + config.restitution) * m2 * v2 / totalMass;
         const v2Final = (m2 - config.restitution * m1) * v2 / totalMass + (1 + config.restitution) * m1 * v1 / totalMass;
 
-        // Плавное изменение скорости для "космического" эффекта
-        const damping = 0.3;
+        // Увеличенное изменение скорости для разлёта
+        const damping = 0.8; // Увеличено для более сильного отскока
         ball1.dx += (v1Final - v1) * nx * damping;
         ball1.dy += (v1Final - v1) * ny * damping;
         ball2.dx += (v2Final - v2) * nx * damping;
         ball2.dy += (v2Final - v2) * ny * damping;
 
-        // Временное замедление на 3 секунды при столкновении
+        // Временное замедление на 3 секунды
         ball1.speedReductionEnd = currentTime + config.speedReductionTime;
         ball2.speedReductionEnd = currentTime + config.speedReductionTime;
 
-        // Плавное раздвигание шаров
+        // Сильное раздвигание шаров для разлёта в разные стороны
         const overlap = (ball1.size / 2 + ball2.size / 2) - distance;
         if (overlap > 0) {
-            const pushFactor = 0.4; // Увеличено для предотвращения залипания
+            const pushFactor = 0.6; // Увеличено для гарантированного разлёта
             ball1.x -= overlap * nx * pushFactor;
             ball1.y -= overlap * ny * pushFactor;
             ball2.x += overlap * nx * pushFactor;
