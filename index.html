@@ -7,27 +7,44 @@
         body, html {
             margin: 0;
             padding: 0;
-            overflow: hidden;
             background: #111;
             color: white;
             font-family: sans-serif;
+            overflow: hidden;
         }
         canvas {
             display: block;
         }
-        #stats {
+        #ui {
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0,0,0,0.6);
             padding: 10px;
-            border-radius: 6px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        #ui label {
+            display: block;
+            margin-top: 5px;
+        }
+        #ui input {
+            width: 60px;
         }
     </style>
 </head>
 <body>
-    <div id="stats">Loading...</div>
     <canvas id="simulation"></canvas>
+    <div id="ui">
+        <div><b>Настройки:</b></div>
+        <label>Стартовые существа: <input type="number" id="startCount" value="60"></label>
+        <label>Макс. существа: <input type="number" id="maxCreatures" value="150"></label>
+        <label>Шанс мутации: <input type="number" id="mutationChance" value="0.1" step="0.01"></label>
+        <label>Кол-во еды: <input type="number" id="maxFood" value="50"></label>
+        <label>Размер: <input type="number" id="radius" value="5"></label>
+        <button onclick="restartSimulation()">Перезапустить</button>
+        <div id="stats" style="margin-top:10px;"></div>
+    </div>
     <script src="main.js"></script>
 </body>
 </html>
