@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         maxSize: 250,
         sizeIncrease: 1.15,
         speedIncrease: 1.15,
+        particleLife: 1000, // Время жизни частицы в миллисекундах
         particleSizeMin: 5,
         particleSizeMax: 15,
         particleOpacityMin: 0.3,
@@ -21,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let score = 0;
     const scoreDisplay = document.getElementById('score-display');
     let smiley = null;
-    const obstacles = document.querySelectorAll('.obstacle');
 
     // Создание шарика
     function createBall(id, color) {
@@ -72,43 +72,26 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(createSmiley, 20000);
     }
 
-    // Создание частицы
+    // Создание красивой частицы
     function createParticle(x, y, color) {
         const size = Math.random() * (config.particleSizeMax - config.particleSizeMin) + config.particleSizeMin;
         const opacity = Math.random() * (config.particleOpacityMax - config.particleOpacityMin) + config.particleOpacityMin;
         const particle = document.createElement('div');
         particle.className = 'particle';
-        particle.style.cssText = `
-            left: ${x - size / 2}px;
-            top: ${y - size / 2}px;
-            width: ${size}px;
-            height: ${size}px;
-            background: ${color};
-            opacity: ${opacity};
-            border-radius: 50%;
-        `;
+        particle.style.left = `${x - size / 2}px`;
+        particle.style.top = `${y - size / 2}px`;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.background = `radial-gradient(circle, ${color}, transparent)`;
+        particle.style.opacity = opacity;
         document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 1000);
-    }
 
-    // Проверка столкновения с препятствиями
-    function checkObstacleCollision(ball) {
-        obstacles.forEach(obstacle => {
-            const rect = obstacle.getBoundingClientRect();
-            const ballRect = ball.element.getBoundingClientRect();
-
-            if (
-                ballRect.left < rect.right &&
-                ballRect.right > rect.left &&
-                ballRect.top < rect.bottom &&
-                ballRect.bottom > rect.top
-            ) {
-                if (ballRect.left < rect.right && ball.dx < 0) ball.dx = Math.abs(ball.dx);
-                if (ballRect.right > rect.left && ball.dx > 0) ball.dx = -Math.abs(ball.dx);
-                if (ballRect.top < rect.bottom && ball.dy < 0) ball.dy = Math.abs(ball.dy);
-                if (ballRect.bottom > rect.top && ball.dy > 0) ball.dy = -Math.abs(ball.dy);
-            }
-        });
+        // Анимация исчезновения
+        setTimeout(() => {
+            particle.style.transition = 'opacity 1s';
+            particle.style.opacity = '0';
+            setTimeout(() => particle.remove(), 1000);
+        }, config.particleLife);
     }
 
     // Обновление скорости шарика
@@ -116,6 +99,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const angle = Math.atan2(ball.dy, ball.dx);
         ball.dx = Math.cos(angle) * ball.speed;
         ball.dy = Math.sin(angle) * ball.speed;
+    }
+
+    // Проверка столкновений
+    function checkCollisions() {
+        if (smiley) {
+            const smileyRect = smiley.getBoundingClientRect();
+            balls.forEach(ball => {
+                const ballRect = ball.element.getBoundingClientRect();
+                if (
+                    ballRect.left < smileyRect.right &&
+                    ballRect.right > smileyRect.left &&
+                    ballRect.top < smileyRect.bottom &&
+                    ballRect.bottom > smileyRect.top
+                ) {
+                    handleSmileyCollision(ball);
+                }
+            });
+        }
     }
 
     // Игровой цикл
@@ -129,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ball.x += ball.dx * 60 * deltaTime;
             ball.y += ball.dy * 60 * deltaTime;
 
-            // Отскок от стен
+            // Отскок от краев
             if (ball.x < 0) { ball.x = 0; ball.dx = Math.abs(ball.dx); }
             if (ball.x > window.innerWidth - ball.size) { ball.x = window.innerWidth - ball.size; ball.dx = -Math.abs(ball.dx); }
             if (ball.y < 0) { ball.y = 0; ball.dy = Math.abs(ball.dy); }
@@ -140,27 +141,11 @@ document.addEventListener('DOMContentLoaded', () => {
             ball.element.style.width = `${ball.size}px`;
             ball.element.style.height = `${ball.size}px`;
 
-            // Создание частиц в каждом кадре
+            // Создание частицы в каждом кадре
             createParticle(ball.x + ball.size / 2, ball.y + ball.size / 2, ball.color);
-
-            // Проверка столкновения с препятствиями
-            checkObstacleCollision(ball);
-
-            // Проверка столкновения со смайликом
-            if (smiley) {
-                const smileyRect = smiley.getBoundingClientRect();
-                const ballRect = ball.element.getBoundingClientRect();
-                if (
-                    ballRect.left < smileyRect.right &&
-                    ballRect.right > smileyRect.left &&
-                    ballRect.top < smileyRect.bottom &&
-                    ballRect.bottom > smileyRect.top
-                ) {
-                    handleSmileyCollision(ball);
-                }
-            }
         });
 
+        checkCollisions();
         requestAnimationFrame(gameLoop);
     }
 
