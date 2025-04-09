@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Конфигурация игры
     const config = {
         baseSpeed: 2,
         baseSize: 50,
@@ -6,14 +7,15 @@ document.addEventListener('DOMContentLoaded', () => {
         maxSize: 250,
         sizeIncrease: 1.15,
         speedIncrease: 1.15,
-        particleLife: 1000, // Время жизни частицы в миллисекундах
+        particleLife: 1000,
         particleSizeMin: 5,
         particleSizeMax: 15,
         particleOpacityMin: 0.3,
         particleOpacityMax: 0.8
     };
 
-    const balls = [
+    // Массив для хранения всех шариков
+    let balls = [
         createBall('red-ball', 'red'),
         createBall('green-ball', 'green'),
         createBall('blue-ball', 'blue')
@@ -25,7 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Создание шарика
     function createBall(id, color) {
-        const element = document.getElementById(id);
+        const element = id ? document.getElementById(id) : document.createElement('div');
+        if (!id) {
+            element.className = 'ball';
+            document.body.appendChild(element);
+        }
         const size = config.baseSize;
         const angle = Math.random() * Math.PI * 2;
 
@@ -101,8 +107,42 @@ document.addEventListener('DOMContentLoaded', () => {
         ball.dy = Math.sin(angle) * ball.speed;
     }
 
+    // Проверка столкновения шариков
+    function isBallsColliding(ball1, ball2) {
+        const dx = ball1.x + ball1.size / 2 - (ball2.x + ball2.size / 2);
+        const dy = ball1.y + ball1.size / 2 - (ball2.y + ball2.size / 2);
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        return distance < (ball1.size / 2 + ball2.size / 2);
+    }
+
+    // Обработка столкновения шариков
+    function handleBallCollision(ball1, ball2) {
+        // Простой отскок: обмен скоростями
+        const tempDx = ball1.dx;
+        const tempDy = ball1.dy;
+        ball1.dx = ball2.dx;
+        ball1.dy = ball2.dy;
+        ball2.dx = tempDx;
+        ball2.dy = tempDy;
+    }
+
+    // Сброс шарика и добавление нового
+    function checkBallSize(ball) {
+        if (ball.size >= config.baseSize * 3) { // 300% от начального размера
+            // Сбрасываем шарик
+            ball.size = config.baseSize;
+            ball.speed = config.baseSpeed;
+            updateBallSpeed(ball);
+
+            // Добавляем новый шарик того же цвета
+            const newBall = createBall(null, ball.color);
+            balls.push(newBall);
+        }
+    }
+
     // Проверка столкновений
     function checkCollisions() {
+        // Столкновение со смайликом
         if (smiley) {
             const smileyRect = smiley.getBoundingClientRect();
             balls.forEach(ball => {
@@ -116,6 +156,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     handleSmileyCollision(ball);
                 }
             });
+        }
+
+        // Столкновение шариков друг с другом
+        for (let i = 0; i < balls.length; i++) {
+            for (let j = i + 1; j < balls.length; j++) {
+                if (isBallsColliding(balls[i], balls[j])) {
+                    handleBallCollision(balls[i], balls[j]);
+                }
+            }
         }
     }
 
@@ -143,6 +192,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Создание частицы в каждом кадре
             createParticle(ball.x + ball.size / 2, ball.y + ball.size / 2, ball.color);
+
+            // Проверка размера шарика
+            checkBallSize(ball);
         });
 
         checkCollisions();
