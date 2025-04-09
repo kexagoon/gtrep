@@ -21,9 +21,18 @@ const COLORS = {
 let creatures = [];
 let foods = [];
 
-function getSettings() {
+function getTypeSettings(type) {
     return {
-        startCount: parseInt(document.getElementById("startCount").value),
+        enabled: document.getElementById(`enable${type}`).checked,
+        count: parseInt(document.getElementById(`start${type}`).value),
+        speed: parseFloat(document.getElementById(`speed${type}`).value),
+        aggression: parseFloat(document.getElementById(`aggr${type}`).value),
+        hunger: parseFloat(document.getElementById(`hung${type}`).value)
+    };
+}
+
+function getGlobalSettings() {
+    return {
         maxCreatures: parseInt(document.getElementById("maxCreatures").value),
         mutationChance: parseFloat(document.getElementById("mutationChance").value),
         maxFood: parseInt(document.getElementById("maxFood").value),
@@ -33,22 +42,21 @@ function getSettings() {
 
 class Creature {
     constructor(type, x, y, genes = null) {
-        this.settings = getSettings();
+        const global = getGlobalSettings();
+        const local = getTypeSettings(capitalize(type));
         this.x = x ?? Math.random() * width;
         this.y = y ?? Math.random() * height;
-        this.radius = this.settings.radius;
+        this.radius = global.radius;
         this.type = type;
         this.color = COLORS[type];
         this.energy = 100;
         this.cooldown = 0;
         this.alpha = 1;
-
         this.genes = genes ?? {
-            speed: Math.random() * 1.5 + 0.5,
-            aggression: Math.random(), // реакция на врагов
-            hunger: Math.random() // стремление к еде
+            speed: local.speed,
+            aggression: local.aggression,
+            hunger: local.hunger
         };
-
         this.vx = (Math.random() - 0.5) * this.genes.speed;
         this.vy = (Math.random() - 0.5) * this.genes.speed;
     }
@@ -56,13 +64,10 @@ class Creature {
     update() {
         this.x += this.vx;
         this.y += this.vy;
-
         if (this.x < this.radius || this.x > width - this.radius) this.vx *= -1;
         if (this.y < this.radius || this.y > height - this.radius) this.vy *= -1;
-
         this.energy -= 0.05;
         if (this.cooldown > 0) this.cooldown--;
-
         if (this.energy <= 0) this.alpha -= 0.02;
         this.seekFood();
     }
@@ -71,7 +76,6 @@ class Creature {
         if (foods.length === 0) return;
         let closest = null;
         let distMin = Infinity;
-
         for (let f of foods) {
             const dx = f.x - this.x;
             const dy = f.y - this.y;
@@ -81,7 +85,6 @@ class Creature {
                 distMin = dist;
             }
         }
-
         if (closest) {
             const dx = closest.x - this.x;
             const dy = closest.y - this.y;
@@ -109,7 +112,7 @@ class Creature {
             }
 
             if (this.type === other.type && dist < this.radius * 2 && this.cooldown === 0 && other.cooldown === 0) {
-                if (creatures.length < getSettings().maxCreatures) {
+                if (creatures.length < getGlobalSettings().maxCreatures) {
                     const childGenes = mutateGenes(avgGenes(this.genes, other.genes));
                     creatures.push(new Creature(this.type, this.x, this.y, childGenes));
                     this.energy -= 15;
@@ -146,6 +149,10 @@ class Creature {
     }
 }
 
+function capitalize(str) {
+    return str[0].toUpperCase() + str.slice(1);
+}
+
 function avgGenes(g1, g2) {
     return {
         speed: (g1.speed + g2.speed) / 2,
@@ -155,7 +162,7 @@ function avgGenes(g1, g2) {
 }
 
 function mutateGenes(g) {
-    const m = getSettings().mutationChance;
+    const m = getGlobalSettings().mutationChance;
     return {
         speed: Math.max(0.3, g.speed + (Math.random() - 0.5) * m),
         aggression: clamp01(g.aggression + (Math.random() - 0.5) * m),
@@ -189,26 +196,31 @@ function updateStats() {
         Красные: ${counts.red}<br>
         Зелёные: ${counts.green}<br>
         Синие: ${counts.blue}<br>
-        Пища: ${foods.length}<br>
+        Еда: ${foods.length}<br>
         Всего: ${creatures.length}
     `;
 }
 
 function restartSimulation() {
-    const s = getSettings();
     creatures = [];
     foods = [];
-    for (let i = 0; i < s.startCount; i++) {
-        const type = i < s.startCount / 3 ? "red" : i < (2 * s.startCount / 3) ? "green" : "blue";
-        creatures.push(new Creature(type));
+    for (let type of ["red", "green", "blue"]) {
+        const set = getTypeSettings(capitalize(type));
+        if (set.enabled) {
+            for (let i = 0; i < set.count; i++) {
+                creatures.push(new Creature(type));
+            }
+        }
     }
 }
 
 function animate() {
-    const s = getSettings();
+    const s = getGlobalSettings();
     ctx.clearRect(0, 0, width, height);
 
-    if (foods.length < s.maxFood && Math.random() < 0.1) foods.push(new Food());
+    if (foods.length < s.maxFood && Math.random() < 0.1) {
+        foods.push(new Food());
+    }
 
     for (let c of creatures) {
         c.update();
