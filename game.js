@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
         minSize: 25,
         maxSize: 250,
         maxSpeed: 10,
-        minSpeed: 0.5, // Минимальная скорость
+        minSpeed: 0.5,
         sizeIncrease: 1.15,
         speedIncrease: 1.15,
         particleLife: 1000,
@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
         particleOpacityMin: 0.3,
         particleOpacityMax: 0.8,
         sizeThreshold: 150, // 300% от baseSize
-        stuckTimeThreshold: 3000 // 3 секунды для разведения
+        stuckTimeThreshold: 3000, // 3 секунды для разведения
+        maxBalls: 20 // Максимальное количество шариков
     };
 
     let balls = [
@@ -48,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dy: Math.sin(angle) * config.baseSpeed,
             size,
             speed: config.baseSpeed,
-            stuckTime: 0 // Время "слипания" с другим шариком
+            stuckTime: 0
         };
     }
 
@@ -85,8 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateBallSpeed(ball) {
         const currentSpeed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
-        if (currentSpeed < config.minSpeed) {
-            const angle = Math.atan2(ball.dy, ball.dx);
+        if (currentSpeed < config.minSpeed || isNaN(currentSpeed)) {
+            const angle = Math.random() * Math.PI * 2; // Случайный угол, если скорость потеряна
             ball.speed = config.minSpeed;
             ball.dx = Math.cos(angle) * ball.speed;
             ball.dy = Math.sin(angle) * ball.speed;
@@ -99,8 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleSmileyCollision(ball) {
-        smiley.remove();
-        smiley = null;
+        if (smiley) {
+            smiley.remove();
+            smiley = null;
+        }
         ball.size = Math.min(ball.size * config.sizeIncrease, config.maxSize);
         ball.speed *= config.speedIncrease;
         updateBallSpeed(ball);
@@ -159,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const overlap = (ball1.size / 2 + ball2.size / 2) - distance;
         if (overlap > 0) {
-            const pushForce = 10; // Сильное раздвигание
+            const pushForce = 10;
             ball1.dx -= pushForce * nx;
             ball1.dy -= pushForce * ny;
             ball2.dx += pushForce * nx;
@@ -173,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkBallSize(ball) {
-        if (ball.size >= config.sizeThreshold) {
+        if (ball.size >= config.sizeThreshold && balls.length < config.maxBalls) {
             ball.size = config.baseSize;
             ball.speed = config.baseSpeed;
             updateBallSpeed(ball);
@@ -203,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let j = i + 1; j < balls.length; j++) {
                 if (isBallsColliding(balls[i], balls[j])) {
                     handleBallCollision(balls[i], balls[j]);
-                    balls[i].stuckTime += 16; // Примерно 16мс на кадр
+                    balls[i].stuckTime += 16;
                     balls[j].stuckTime += 16;
 
                     if (balls[i].stuckTime >= config.stuckTimeThreshold) {
@@ -221,30 +224,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let lastTime = performance.now();
     function gameLoop() {
-        const currentTime = performance.now();
-        const deltaTime = (currentTime - lastTime) / 1000;
-        lastTime = currentTime;
+        try {
+            const currentTime = performance.now();
+            const deltaTime = Math.min((currentTime - lastTime) / 1000, 0.1); // Ограничение deltaTime
+            lastTime = currentTime;
 
-        balls.forEach(ball => {
-            ball.x += ball.dx * 60 * deltaTime;
-            ball.y += ball.dy * 60 * deltaTime;
+            balls.forEach(ball => {
+                ball.x += ball.dx * 60 * deltaTime;
+                ball.y += ball.dy * 60 * deltaTime;
 
-            if (ball.x < 0) { ball.x = 0; ball.dx = Math.abs(ball.dx); updateBallSpeed(ball); }
-            if (ball.x > window.innerWidth - ball.size) { ball.x = window.innerWidth - ball.size; ball.dx = -Math.abs(ball.dx); updateBallSpeed(ball); }
-            if (ball.y < 0) { ball.y = 0; ball.dy = Math.abs(ball.dy); updateBallSpeed(ball); }
-            if (ball.y > window.innerHeight - ball.size) { ball.y = window.innerHeight - ball.size; ball.dy = -Math.abs(ball.dy); updateBallSpeed(ball); }
+                if (ball.x < 0) { ball.x = 0; ball.dx = Math.abs(ball.dx); updateBallSpeed(ball); }
+                if (ball.x > window.innerWidth - ball.size) { ball.x = window.innerWidth - ball.size; ball.dx = -Math.abs(ball.dx); updateBallSpeed(ball); }
+                if (ball.y < 0) { ball.y = 0; ball.dy = Math.abs(ball.dy); updateBallSpeed(ball); }
+                if (ball.y > window.innerHeight - ball.size) { ball.y = window.innerHeight - ball.size; ball.dy = -Math.abs(ball.dy); updateBallSpeed(ball); }
 
-            ball.element.style.left = `${ball.x}px`;
-            ball.element.style.top = `${ball.y}px`;
-            ball.element.style.width = `${ball.size}px`;
-            ball.element.style.height = `${ball.size}px`;
+                ball.element.style.left = `${ball.x}px`;
+                ball.element.style.top = `${ball.y}px`;
+                ball.element.style.width = `${ball.size}px`;
+                ball.element.style.height = `${ball.size}px`;
 
-            createParticle(ball.x + ball.size / 2, ball.y + ball.size / 2, ball.color);
-            checkBallSize(ball);
-        });
+                createParticle(ball.x + ball.size / 2, ball.y + ball.size / 2, ball.color);
+                checkBallSize(ball);
+            });
 
-        checkCollisions();
-        requestAnimationFrame(gameLoop);
+            checkCollisions();
+        } catch (error) {
+            console.error('Ошибка в игровом цикле:', error);
+        }
+
+        requestAnimationFrame(gameLoop); // Цикл продолжается даже при ошибке
     }
 
     createSmiley();
