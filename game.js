@@ -4,11 +4,14 @@ document.addEventListener('DOMContentLoaded', () => {
         baseSpeed: 2,
         baseSize: 50,
         minSize: 25,
-        maxSize: 150,
+        maxSize: 250, // 500% от 50px
+        sizeIncrease: 1.15,
         speedIncrease: 1.15,
         speedDecrease: 0.95,
         particleLife: 1000,
-        smileySpawnDelay: 20000
+        smileySpawnDelay: 20000,
+        stuckThreshold: 1000, // миллисекунды
+        helpRadius: 100 // пиксели
     };
 
     // Элементы игры
@@ -19,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     
     let smiley = null;
-    let smileyTimeout = null;
     let score = 0;
     const particles = [];
     const scoreDisplay = document.getElementById('score-display');
@@ -41,13 +43,16 @@ document.addEventListener('DOMContentLoaded', () => {
             dx: Math.cos(angle) * config.baseSpeed,
             dy: Math.sin(angle) * config.baseSpeed,
             size,
-            speed: config.baseSpeed
+            speed: config.baseSpeed,
+            lastX: null,
+            lastY: null,
+            stuckTime: 0
         };
     }
 
     // Создание смайлика
     function createSmiley() {
-        if (smiley) smiley.remove();
+        if (smiley) return; // Не создавать новый, если уже есть
         
         const smileys = ['😀', '😎', '🤩', '😍', '🥳', '🤪'];
         smiley = document.createElement('div');
@@ -56,17 +61,18 @@ document.addEventListener('DOMContentLoaded', () => {
         smiley.style.left = `${Math.random() * (window.innerWidth - 50)}px`;
         smiley.style.top = `${Math.random() * (window.innerHeight - 50)}px`;
         document.body.appendChild(smiley);
-        
-        smileyTimeout = setTimeout(createSmiley, config.smileySpawnDelay);
     }
 
     // Создание частицы
     function createParticle(x, y, color) {
+        const size = Math.random() * 10 + 5; // от 5 до 15px
         const particle = document.createElement('div');
         particle.className = 'particle';
         particle.style.cssText = `
             left: ${x}px;
             top: ${y}px;
+            width: ${size}px;
+            height: ${size}px;
             background: ${color};
             opacity: 0.8;
         `;
@@ -76,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Проверка столкновений
     function checkCollisions() {
-        // Со смайликом
         if (smiley) {
             const smileyRect = smiley.getBoundingClientRect();
             balls.forEach(ball => {
@@ -87,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        // Между шариками
         for (let i = 0; i < balls.length; i++) {
             for (let j = i + 1; j < balls.length; j++) {
                 const ball1 = balls[i];
@@ -103,28 +107,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleSmileyCollision(ball) {
         smiley.remove();
         smiley = null;
-        ball.size = Math.min(ball.size * 1.15, config.maxSize);
-        ball.speed *= 1.15;
+        ball.size = Math.min(ball.size * config.sizeIncrease, config.maxSize);
+        ball.speed *= config.speedIncrease;
         updateBallSpeed(ball);
         score++;
-        scoreDisplay.textContent = `Шарики: 3 | Смайлики: ${score}`;
-        clearTimeout(smileyTimeout);
+        scoreDisplay.textContent = `Смайлики: ${score}`;
         setTimeout(createSmiley, config.smileySpawnDelay);
     }
 
     // Обработка столкновения шариков
     function handleBallCollision(ball1, ball2) {
-        // Изменение размеров
         ball1.size = Math.max(ball1.size * 0.95, config.minSize);
         ball2.size = Math.max(ball2.size * 0.95, config.minSize);
         
-        // Изменение скорости
-        ball1.speed *= 0.95;
-        ball2.speed *= 0.95;
+        ball1.speed *= config.speedDecrease;
+        ball2.speed *= config.speedDecrease;
         updateBallSpeed(ball1);
         updateBallSpeed(ball2);
         
-        // Физика отскока
         const dx = ball2.x - ball1.x;
         const dy = ball2.y - ball1.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -163,9 +163,40 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.sqrt(dx*dx + dy*dy) < (ball1.size/2 + ball2.size/2);
     }
 
+    // Проверка застревания
+    function checkStuck(ball, deltaTime) {
+        if (ball.lastX === ball.x && ball.lastY === ball.y) {
+            ball.stuckTime += deltaTime;
+        } else {
+            ball.stuckTime = 0;
+        }
+        ball.lastX = ball.x;
+        ball.lastY = ball.y;
+        return ball.stuckTime > config.stuckThreshold;
+    }
+
+    // Помощь застрявшим шарикам
+    function helpStuckBall(stuckBall) {
+        balls.forEach(ball => {
+            if (ball !== stuckBall) {
+                const dx = stuckBall.x - ball.x;
+                const dy = stuckBall.y - ball.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < config.helpRadius) {
+                    ball.dx += (dx / distance) * 0.1;
+                    ball.dy += (dy / distance) * 0.1;
+                }
+            }
+        });
+    }
+
     // Игровой цикл
+    let lastTime = performance.now();
     function gameLoop() {
-        // Движение и границы
+        const currentTime = performance.now();
+        const deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
+
         balls.forEach(ball => {
             ball.x += ball.dx;
             ball.y += ball.dy;
@@ -192,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ball.element.style.width = `${ball.size}px`;
             ball.element.style.height = `${ball.size}px`;
             
-            // Следы частиц
             if (Math.random() < 0.5) {
                 createParticle(
                     ball.x + ball.size/2,
@@ -200,9 +230,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     ball.color
                 );
             }
+
+            if (checkStuck(ball, deltaTime)) {
+                helpStuckBall(ball);
+            }
         });
         
-        // Обновление частиц
         particles.forEach((p, i) => {
             p.life -= 16;
             p.element.style.opacity = p.life / config.particleLife;
