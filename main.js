@@ -1,3 +1,6 @@
+
+import { CreatureAI } from './ai.js';
+
 const canvas = document.getElementById("simulation");
 const ctx = canvas.getContext("2d");
 let width = window.innerWidth;
@@ -52,47 +55,42 @@ class Creature {
         this.energy = 100;
         this.cooldown = 0;
         this.alpha = 1;
+        this.age = 0;
+
         this.genes = genes ?? {
             speed: local.speed,
             aggression: local.aggression,
             hunger: local.hunger
         };
-        this.vx = (Math.random() - 0.5) * this.genes.speed;
-        this.vy = (Math.random() - 0.5) * this.genes.speed;
+
+        this.angle = Math.random() * Math.PI * 2;
+        this.target = null;
+
+        this.ai = new CreatureAI(this);
     }
 
     update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        if (this.x < this.radius || this.x > width - this.radius) this.vx *= -1;
-        if (this.y < this.radius || this.y > height - this.radius) this.vy *= -1;
         this.energy -= 0.05;
+        this.age += 1;
         if (this.cooldown > 0) this.cooldown--;
         if (this.energy <= 0) this.alpha -= 0.02;
-        this.seekFood();
+
+        this.ai.think();
+        this.move();
     }
 
-    seekFood() {
-        if (foods.length === 0) return;
-        let closest = null;
-        let distMin = Infinity;
-        for (let f of foods) {
-            const dx = f.x - this.x;
-            const dy = f.y - this.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 100 && dist < distMin) {
-                closest = f;
-                distMin = dist;
-            }
+    move() {
+        const speed = this.genes.speed;
+        this.x += Math.cos(this.angle) * speed;
+        this.y += Math.sin(this.angle) * speed;
+
+        if (this.x < this.radius || this.x > width - this.radius) {
+            this.angle = Math.PI - this.angle;
+            this.x = Math.max(this.radius, Math.min(this.x, width - this.radius));
         }
-        if (closest) {
-            const dx = closest.x - this.x;
-            const dy = closest.y - this.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist > 0) {
-                this.vx += (dx / dist) * 0.01 * this.genes.hunger;
-                this.vy += (dy / dist) * 0.01 * this.genes.hunger;
-            }
+        if (this.y < this.radius || this.y > height - this.radius) {
+            this.angle = -this.angle;
+            this.y = Math.max(this.radius, Math.min(this.y, height - this.radius));
         }
     }
 
@@ -102,18 +100,9 @@ class Creature {
         const dy = other.y - this.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < this.radius * 4 && dist > 0) {
-            if (this.type === "green" && other.type === "red") {
-                this.vx -= dx / dist * 0.05 * this.genes.aggression;
-                this.vy -= dy / dist * 0.05 * this.genes.aggression;
-            }
-            if (this.type === "blue" && other.type === "green") {
-                this.vx += dx / dist * 0.05 * this.genes.aggression;
-                this.vy += dy / dist * 0.05 * this.genes.aggression;
-            }
-
             if (this.type === other.type && dist < this.radius * 2 && this.cooldown === 0 && other.cooldown === 0) {
                 if (creatures.length < getGlobalSettings().maxCreatures) {
-                    const childGenes = mutateGenes(avgGenes(this.genes, other.genes));
+                    const childGenes = mutateGenes(avgGenes(this.genes, other.genes), this, other);
                     creatures.push(new Creature(this.type, this.x, this.y, childGenes));
                     this.energy -= 15;
                     other.energy -= 15;
@@ -136,16 +125,34 @@ class Creature {
     }
 
     draw() {
-        ctx.beginPath();
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
         ctx.globalAlpha = this.alpha;
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fill();
         ctx.globalAlpha = 1;
+        ctx.restore();
     }
 
     isDead() {
         return this.alpha <= 0;
+    }
+}
+
+class Food {
+    constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+    }
+
+    draw() {
+        ctx.globalAlpha = 0.4;
+        ctx.fillStyle = "#f0e68c";
+        ctx.fillRect(this.x - 3, this.y - 3, 6, 6);
+        ctx.globalAlpha = 1;
     }
 }
 
@@ -161,31 +168,21 @@ function avgGenes(g1, g2) {
     };
 }
 
-function mutateGenes(g) {
+function mutateGenes(g, parent1, parent2) {
     const m = getGlobalSettings().mutationChance;
-    return {
+    let newGenes = {
         speed: Math.max(0.3, g.speed + (Math.random() - 0.5) * m),
         aggression: clamp01(g.aggression + (Math.random() - 0.5) * m),
         hunger: clamp01(g.hunger + (Math.random() - 0.5) * m)
     };
+    const ageBonus = Math.min(1, (parent1.age + parent2.age) / 2000);
+    newGenes.speed += ageBonus * 0.1;
+    newGenes.hunger += ageBonus * 0.05;
+    return newGenes;
 }
 
 function clamp01(x) {
     return Math.max(0, Math.min(1, x));
-}
-
-class Food {
-    constructor() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-    }
-
-    draw() {
-        ctx.globalAlpha = 0.4;
-        ctx.fillStyle = "#f0e68c"; // мягкий жёлтый (khaki)
-        ctx.fillRect(this.x - 3, this.y - 3, 6, 6); // квадрат 6x6
-        ctx.globalAlpha = 1;
-    }
 }
 
 function updateStats() {
