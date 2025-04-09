@@ -28,6 +28,7 @@
             cursor: pointer;
             font-size: 14px;
             color: #fff;
+            z-index: 20;
         }
 
         #settings-panel {
@@ -36,12 +37,12 @@
             left: 0;
             width: 320px;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             padding: 15px;
             box-sizing: border-box;
             overflow-y: auto;
             display: none;
-            z-index: 10;
+            z-index: 15;
         }
 
         #settings-panel h3 {
@@ -137,17 +138,25 @@
 </div>
 
 <script>
-function toggleSettings() {
-    const panel = document.getElementById("settings-panel");
-    panel.style.display = panel.style.display === "block" ? "none" : "block";
-}
-function toggleCollapse(header) {
-    const content = header.nextElementSibling;
-    content.classList.toggle("open");
-    header.innerText = header.innerText.includes("▼")
-        ? header.innerText.replace("▼", "▲")
-        : header.innerText.replace("▲", "▼");
-}
+    function toggleSettings() {
+        const panel = document.getElementById("settings-panel");
+        panel.style.display = panel.style.display === "block" ? "none" : "block";
+    }
+
+    function toggleCollapse(header) {
+        const content = header.nextElementSibling;
+        content.classList.toggle("open");
+        header.innerText = header.innerText.includes("▼")
+            ? header.innerText.replace("▼", "▲")
+            : header.innerText.replace("▲", "▼");
+    }
+
+    const openBtn = document.getElementById("open-settings");
+    openBtn.addEventListener("click", toggleSettings);
+    openBtn.addEventListener("touchstart", function(e) {
+        e.preventDefault();
+        toggleSettings();
+    }, { passive: false });
 </script>
 <script src="main.js"></script>
 </body>
