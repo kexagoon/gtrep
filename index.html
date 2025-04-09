@@ -1,15 +1,64 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Игра с шариками</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triple Ball Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #222;
+            font-family: Arial;
+        }
+        .ball {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 0 15px currentColor;
+            z-index: 10;
+        }
+        #red-ball { background: red; color: red; }
+        #green-ball { background: green; color: green; }
+        #blue-ball { background: blue; color: blue; }
+        .smiley {
+            position: absolute;
+            font-size: 30px;
+            z-index: 20;
+            text-shadow: 0 0 10px yellow;
+        }
+        #score-display {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+            z-index: 100;
+        }
+        .flashing {
+            animation: flash 0.5s infinite;
+        }
+        @keyframes flash {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+        }
+    </style>
 </head>
 <body>
+    <div id="score-display">Смайлики: 0</div>
     <div id="red-ball" class="ball"></div>
     <div id="green-ball" class="ball"></div>
     <div id="blue-ball" class="ball"></div>
-    <div id="score-display">Смайлики: 0</div>
     <script src="game.js"></script>
 </body>
 </html>
