@@ -110,38 +110,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleBallCollision(ball1, ball2) {
-        // Более точная физика отскока
+        // Вычисляем нормаль столкновения
         const dx = ball2.x - ball1.x;
         const dy = ball2.y - ball1.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const nx = dx / distance; // Нормализованный вектор по X
-        const ny = dy / distance; // Нормализованный вектор по Y
+        const nx = dx / distance;
+        const ny = dy / distance;
 
-        // Вычисляем относительную скорость
+        // Относительная скорость
         const relativeVx = ball1.dx - ball2.dx;
         const relativeVy = ball1.dy - ball2.dy;
         const dotProduct = relativeVx * nx + relativeVy * ny;
 
-        // Если шарики движутся навстречу друг другу
+        // Если шарики движутся друг от друга, не обрабатываем
         if (dotProduct > 0) return;
 
-        // Коэффициент упругости (1 = полностью упругий отскок)
+        // Коэффициент упругости
         const restitution = 1;
 
         // Импульс
-        const impulse = 2 * dotProduct / (ball1.size + ball2.size);
+        const impulse = (2 * dotProduct) / (ball1.size + ball2.size);
         ball1.dx -= impulse * ball2.size * nx;
         ball1.dy -= impulse * ball2.size * ny;
         ball2.dx += impulse * ball1.size * nx;
         ball2.dy += impulse * ball1.size * ny;
 
-        // Раздвигаем шарики, чтобы они не залипали
+        // Увеличенное раздвигание шариков
         const overlap = (ball1.size / 2 + ball2.size / 2) - distance;
         if (overlap > 0) {
-            ball1.x -= overlap * nx * 0.5;
-            ball1.y -= overlap * ny * 0.5;
-            ball2.x += overlap * nx * 0.5;
-            ball2.y += overlap * ny * 0.5;
+            const pushFactor = 1.1; // Увеличим раздвигание
+            ball1.x -= overlap * nx * pushFactor * 0.5;
+            ball1.y -= overlap * ny * pushFactor * 0.5;
+            ball2.x += overlap * nx * pushFactor * 0.5;
+            ball2.y += overlap * ny * pushFactor * 0.5;
         }
     }
 
@@ -172,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // Проверка столкновений между шариками
         for (let i = 0; i < balls.length; i++) {
             for (let j = i + 1; j < balls.length; j++) {
                 if (isBallsColliding(balls[i], balls[j])) {
