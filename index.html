@@ -134,6 +134,31 @@
     </div>
 
     <button onclick="restartSimulation()">Перезапустить</button>
+
+    <h3 class="setting-title" onclick="toggleCollapse(this)">О существах ▼</h3>
+    <div class="collapsible-content open">
+        <div class="subgroup">
+            <p>
+                <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#ff3b3b;margin-right:5px;"></span>
+                <b>Красные</b> — агрессивные, преследуют <b>зелёных</b>. Быстрые. Слабо интересуются едой.
+            </p>
+            <p>
+                <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#3bff3b;margin-right:5px;"></span>
+                <b>Зелёные</b> — избегают <b>красных</b>, любят еду. Могут быстро набирать энергию.
+            </p>
+            <p>
+                <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#3b3bff;margin-right:5px;"></span>
+                <b>Синие</b> — охотятся на <b>зелёных</b>, едят умеренно, поведение сбалансированное.
+            </p>
+            <hr style="border: 0; border-top: 1px solid #555; margin: 8px 0;">
+            <p style="font-size:13px;">
+                Каждый тип имеет гены:
+                <i>скорость</i>, <i>агрессия</i>, <i>жадность</i>.<br>
+                Эти параметры передаются потомкам с мутациями.
+            </p>
+        </div>
+    </div>
+
     <div id="stats" style="margin-top:10px;"></div>
 </div>
 
