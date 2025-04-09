@@ -1,7 +1,5 @@
 const canvas = document.getElementById("simulation");
 const ctx = canvas.getContext("2d");
-const statsBox = document.getElementById("stats");
-
 let width = window.innerWidth;
 let height = window.innerHeight;
 canvas.width = width;
@@ -14,46 +12,85 @@ window.addEventListener("resize", () => {
     canvas.height = height;
 });
 
-// Настройки
-const INITIAL_COUNT = 90;
-const MAX_CREATURES = 150;
-const MAX_FOOD = 50;
-const RADIUS = 5;
-const FOOD_RADIUS = 3;
-const BASE_SPEED = 1.5;
-const MUTATION_CHANCE = 0.1;
-
 const COLORS = {
     red: "#ff3b3b",
     green: "#3bff3b",
     blue: "#3b3bff"
 };
 
+let creatures = [];
+let foods = [];
+
+function getSettings() {
+    return {
+        startCount: parseInt(document.getElementById("startCount").value),
+        maxCreatures: parseInt(document.getElementById("maxCreatures").value),
+        mutationChance: parseFloat(document.getElementById("mutationChance").value),
+        maxFood: parseInt(document.getElementById("maxFood").value),
+        radius: parseInt(document.getElementById("radius").value)
+    };
+}
+
 class Creature {
-    constructor(type, x = Math.random() * width, y = Math.random() * height, speed = BASE_SPEED) {
-        this.x = x;
-        this.y = y;
-        this.vx = (Math.random() - 0.5) * speed;
-        this.vy = (Math.random() - 0.5) * speed;
+    constructor(type, x, y, genes = null) {
+        this.settings = getSettings();
+        this.x = x ?? Math.random() * width;
+        this.y = y ?? Math.random() * height;
+        this.radius = this.settings.radius;
         this.type = type;
         this.color = COLORS[type];
         this.energy = 100;
         this.cooldown = 0;
-        this.speed = speed;
         this.alpha = 1;
+
+        this.genes = genes ?? {
+            speed: Math.random() * 1.5 + 0.5,
+            aggression: Math.random(), // реакция на врагов
+            hunger: Math.random() // стремление к еде
+        };
+
+        this.vx = (Math.random() - 0.5) * this.genes.speed;
+        this.vy = (Math.random() - 0.5) * this.genes.speed;
     }
 
     update() {
         this.x += this.vx;
         this.y += this.vy;
 
-        if (this.x < RADIUS || this.x > width - RADIUS) this.vx *= -1;
-        if (this.y < RADIUS || this.y > height - RADIUS) this.vy *= -1;
+        if (this.x < this.radius || this.x > width - this.radius) this.vx *= -1;
+        if (this.y < this.radius || this.y > height - this.radius) this.vy *= -1;
 
         this.energy -= 0.05;
         if (this.cooldown > 0) this.cooldown--;
 
         if (this.energy <= 0) this.alpha -= 0.02;
+        this.seekFood();
+    }
+
+    seekFood() {
+        if (foods.length === 0) return;
+        let closest = null;
+        let distMin = Infinity;
+
+        for (let f of foods) {
+            const dx = f.x - this.x;
+            const dy = f.y - this.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 100 && dist < distMin) {
+                closest = f;
+                distMin = dist;
+            }
+        }
+
+        if (closest) {
+            const dx = closest.x - this.x;
+            const dy = closest.y - this.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > 0) {
+                this.vx += (dx / dist) * 0.01 * this.genes.hunger;
+                this.vy += (dy / dist) * 0.01 * this.genes.hunger;
+            }
+        }
     }
 
     interact(other) {
@@ -61,23 +98,20 @@ class Creature {
         const dx = other.x - this.x;
         const dy = other.y - this.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < RADIUS * 4 && dist > 0) {
-            // Поведение
+        if (dist < this.radius * 4 && dist > 0) {
             if (this.type === "green" && other.type === "red") {
-                this.vx -= dx / dist * 0.05;
-                this.vy -= dy / dist * 0.05;
+                this.vx -= dx / dist * 0.05 * this.genes.aggression;
+                this.vy -= dy / dist * 0.05 * this.genes.aggression;
             }
             if (this.type === "blue" && other.type === "green") {
-                this.vx += dx / dist * 0.05;
-                this.vy += dy / dist * 0.05;
+                this.vx += dx / dist * 0.05 * this.genes.aggression;
+                this.vy += dy / dist * 0.05 * this.genes.aggression;
             }
 
-            // Размножение
-            if (this.type === other.type && dist < RADIUS * 2 && this.cooldown === 0 && other.cooldown === 0) {
-                if (creatures.length < MAX_CREATURES) {
-                    const newType = Math.random() < MUTATION_CHANCE ? getRandomType() : this.type;
-                    const newSpeed = mutateSpeed((this.speed + other.speed) / 2);
-                    creatures.push(new Creature(newType, this.x, this.y, newSpeed));
+            if (this.type === other.type && dist < this.radius * 2 && this.cooldown === 0 && other.cooldown === 0) {
+                if (creatures.length < getSettings().maxCreatures) {
+                    const childGenes = mutateGenes(avgGenes(this.genes, other.genes));
+                    creatures.push(new Creature(this.type, this.x, this.y, childGenes));
                     this.energy -= 15;
                     other.energy -= 15;
                     this.cooldown = 100;
@@ -91,7 +125,7 @@ class Creature {
         const dx = food.x - this.x;
         const dy = food.y - this.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < RADIUS + FOOD_RADIUS) {
+        if (dist < this.radius + 3) {
             this.energy += 30;
             return true;
         }
@@ -101,7 +135,7 @@ class Creature {
     draw() {
         ctx.beginPath();
         ctx.globalAlpha = this.alpha;
-        ctx.arc(this.x, this.y, RADIUS, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         ctx.fill();
         ctx.globalAlpha = 1;
@@ -112,6 +146,27 @@ class Creature {
     }
 }
 
+function avgGenes(g1, g2) {
+    return {
+        speed: (g1.speed + g2.speed) / 2,
+        aggression: (g1.aggression + g2.aggression) / 2,
+        hunger: (g1.hunger + g2.hunger) / 2
+    };
+}
+
+function mutateGenes(g) {
+    const m = getSettings().mutationChance;
+    return {
+        speed: Math.max(0.3, g.speed + (Math.random() - 0.5) * m),
+        aggression: clamp01(g.aggression + (Math.random() - 0.5) * m),
+        hunger: clamp01(g.hunger + (Math.random() - 0.5) * m)
+    };
+}
+
+function clamp01(x) {
+    return Math.max(0, Math.min(1, x));
+}
+
 class Food {
     constructor() {
         this.x = Math.random() * width;
@@ -120,65 +175,50 @@ class Food {
 
     draw() {
         ctx.beginPath();
-        ctx.arc(this.x, this.y, FOOD_RADIUS, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
         ctx.fillStyle = "yellow";
         ctx.fill();
     }
 }
 
-function mutateSpeed(base) {
-    const variation = (Math.random() - 0.5) * 0.5;
-    return Math.max(0.5, Math.min(3, base + variation));
-}
-
-function getRandomType() {
-    const types = Object.keys(COLORS);
-    return types[Math.floor(Math.random() * types.length)];
-}
-
-let creatures = [];
-let foods = [];
-
-for (let i = 0; i < INITIAL_COUNT; i++) {
-    const type = i < INITIAL_COUNT / 3 ? "red" : i < (2 * INITIAL_COUNT / 3) ? "green" : "blue";
-    creatures.push(new Creature(type));
-}
-
 function updateStats() {
+    const stats = document.getElementById("stats");
     const counts = { red: 0, green: 0, blue: 0 };
     for (let c of creatures) counts[c.type]++;
-    statsBox.innerHTML = `
-        <b>Популяции:</b><br>
-        <span style="color:${COLORS.red}">Красные: ${counts.red}</span><br>
-        <span style="color:${COLORS.green}">Зелёные: ${counts.green}</span><br>
-        <span style="color:${COLORS.blue}">Синие: ${counts.blue}</span><br>
-        <span>Пищи: ${foods.length}</span><br>
-        <span>Всего: ${creatures.length}</span>
+    stats.innerHTML = `
+        Красные: ${counts.red}<br>
+        Зелёные: ${counts.green}<br>
+        Синие: ${counts.blue}<br>
+        Пища: ${foods.length}<br>
+        Всего: ${creatures.length}
     `;
 }
 
+function restartSimulation() {
+    const s = getSettings();
+    creatures = [];
+    foods = [];
+    for (let i = 0; i < s.startCount; i++) {
+        const type = i < s.startCount / 3 ? "red" : i < (2 * s.startCount / 3) ? "green" : "blue";
+        creatures.push(new Creature(type));
+    }
+}
+
 function animate() {
+    const s = getSettings();
     ctx.clearRect(0, 0, width, height);
 
-    // Создание пищи
-    if (foods.length < MAX_FOOD && Math.random() < 0.05) {
-        foods.push(new Food());
-    }
+    if (foods.length < s.maxFood && Math.random() < 0.1) foods.push(new Food());
 
-    // Еда
     for (let c of creatures) {
+        c.update();
+        for (let other of creatures) c.interact(other);
         for (let i = foods.length - 1; i >= 0; i--) {
             if (c.eat(foods[i])) {
                 foods.splice(i, 1);
                 break;
             }
         }
-    }
-
-    // Обновление и взаимодействие
-    for (let c of creatures) {
-        c.update();
-        for (let other of creatures) c.interact(other);
     }
 
     creatures = creatures.filter(c => !c.isDead());
@@ -190,4 +230,5 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
+restartSimulation();
 animate();
