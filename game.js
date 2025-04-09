@@ -113,15 +113,15 @@ document.addEventListener('DOMContentLoaded', () => {
         ball.mass = ball.size;
     }
 
-    function handleSmileyCollision(ball, currentTime) {
+    function handleSmileyCollision(ball) {
         if (smiley) {
             smiley.remove();
             smiley = null;
         }
         ball.size = Math.min(ball.size * config.sizeIncrease, config.maxSize);
-        ball.baseSpeed *= config.speedIncrease; // Увеличиваем базовую скорость
-        ball.speedReductionEnd = currentTime + config.speedReductionTime; // Замедление на 3 секунды
-        updateBallSpeed(ball, currentTime);
+        ball.baseSpeed *= config.speedIncrease; // Увеличиваем базовую скорость без замедления
+        ball.speed *= config.speedIncrease; // Скорость увеличивается сразу
+        updateBallSpeed(ball);
         score++;
         scoreDisplay.textContent = `Смайлики: ${score}`;
 
@@ -157,28 +157,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const m2 = ball2.mass;
         const totalMass = m1 + m2;
 
-        // Компоненты скорости вдоль нормали
         const v1 = ball1.dx * nx + ball1.dy * ny;
         const v2 = ball2.dx * nx + ball2.dy * ny;
 
-        // Плавные "космические" отскоки с учётом массы
         const v1Final = (m1 - config.restitution * m2) * v1 / totalMass + (1 + config.restitution) * m2 * v2 / totalMass;
         const v2Final = (m2 - config.restitution * m1) * v2 / totalMass + (1 + config.restitution) * m1 * v1 / totalMass;
 
-        // Плавное изменение скорости
-        const damping = 0.3; // Уменьшаем резкость для "космического" эффекта
+        // Плавное изменение скорости для "космического" эффекта
+        const damping = 0.3;
         ball1.dx += (v1Final - v1) * nx * damping;
         ball1.dy += (v1Final - v1) * ny * damping;
         ball2.dx += (v2Final - v2) * nx * damping;
         ball2.dy += (v2Final - v2) * ny * damping;
 
-        // Временное замедление на 3 секунды
+        // Временное замедление на 3 секунды при столкновении
         ball1.speedReductionEnd = currentTime + config.speedReductionTime;
         ball2.speedReductionEnd = currentTime + config.speedReductionTime;
 
+        // Плавное раздвигание шаров
         const overlap = (ball1.size / 2 + ball2.size / 2) - distance;
         if (overlap > 0) {
-            const pushFactor = 0.2; // Очень мягкое раздвигание
+            const pushFactor = 0.4; // Увеличено для предотвращения залипания
             ball1.x -= overlap * nx * pushFactor;
             ball1.y -= overlap * ny * pushFactor;
             ball2.x += overlap * nx * pushFactor;
@@ -233,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ballRect.top < smileyRect.bottom &&
                     ballRect.bottom > smileyRect.top
                 ) {
-                    handleSmileyCollision(ball, currentTime);
+                    handleSmileyCollision(ball);
                 }
             });
         }
