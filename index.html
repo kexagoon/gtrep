@@ -7,8 +7,8 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: #e6f2d9; /* Пастельно-берёзовый фон */
-      color: #222;
+      background: #f9f9f4; /* светлый тёплый фон */
+      color: #111;
       font-family: sans-serif;
       overflow: hidden;
     }
@@ -17,13 +17,13 @@
       position: absolute;
       top: 10px;
       right: 10px;
-      background: rgba(255,255,255,0.4);
-      border: 1px solid rgba(0,0,0,0.2);
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(0,0,0,0.1);
       border-radius: 6px;
       padding: 8px 12px;
       cursor: pointer;
       font-size: 14px;
-      color: #000;
+      color: #222;
       z-index: 20;
     }
     #settings-panel {
@@ -49,13 +49,13 @@
       flex: 1;
       padding: 8px;
       text-align: center;
-      background: #cce6cc;
-      border: 1px solid #99cc99;
+      background: #eeeeee;
+      border: 1px solid #cccccc;
       cursor: pointer;
       font-size: 13px;
       color: #000;
     }
-    .tab-button.active { background: #aaddaa; }
+    .tab-button.active { background: #dddddd; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     .group { margin-bottom: 15px; }
@@ -66,7 +66,7 @@
     button {
       margin-top: 10px;
       padding: 6px 10px;
-      background: #99cc99;
+      background: #dddddd;
       border: none;
       color: #000;
       border-radius: 4px;
@@ -85,8 +85,7 @@
 <canvas id="simulation"></canvas>
 <div id="open-settings">⚙ Настройки</div>
 <div id="settings-panel">
-  <!-- остальные вкладки и настройки — без изменений -->
-  <!-- просто замени предыдущий <style> этим -->
+  <!-- всё остальное (вкладки, параметры, статистика и т.д.) оставляешь как в предыдущем варианте -->
 </div>
 <script>
   function toggleSettings() {
