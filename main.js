@@ -1,92 +1,21 @@
 
-// === Встроенный AI (без импорта) ===
-class CreatureAI {
-    constructor(creature) {
-        this.c = creature;
-        this.memory = {
-            badZones: [],
-            lastFoodSeen: 0,
-            lastEnemySeen: 0
-        };
-    }
-
-    think() {
-        const { c } = this;
-
-        let bestTarget = null;
-        let bestScore = -Infinity;
-
-        for (let f of foods) {
-            const dx = f.x - c.x;
-            const dy = f.y - c.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            const score = c.genes.hunger * (1 / (dist + 1));
-            if (score > bestScore) {
-                bestScore = score;
-                bestTarget = { x: f.x, y: f.y, reason: "food" };
-            }
-        }
-
-        for (let other of creatures) {
-            if (other === c) continue;
-            const dx = other.x - c.x;
-            const dy = other.y - c.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (c.type === "green" && other.type === "red" && dist < 100) {
-                bestTarget = { x: c.x - dx, y: c.y - dy, reason: "flee" };
-                break;
-            }
-            if (c.type === "blue" && other.type === "green" && dist < 100) {
-                bestTarget = { x: other.x, y: other.y, reason: "hunt" };
-                break;
-            }
-        }
-
-        if (bestTarget) {
-            const dx = bestTarget.x - c.x;
-            const dy = bestTarget.y - c.y;
-            const angleTo = Math.atan2(dy, dx);
-            let delta = angleTo - c.angle;
-            delta = ((delta + Math.PI) % (2 * Math.PI)) - Math.PI;
-            c.turnSpeed += delta * 0.1;
-            c.turnSpeed *= 0.7;
-        } else {
-            c.turnSpeed += (Math.random() - 0.5) * 0.02;
-            c.turnSpeed *= 0.8;
-        }
-
-        if (c.energy < 20 && Math.random() < 0.01) {
-            this.memory.badZones.push({ x: c.x, y: c.y, t: Date.now() });
-            if (this.memory.badZones.length > 50) this.memory.badZones.shift();
-        }
-    }
-}
-
-// === Основной код симуляции ===
-
+// Объявление глобальных переменных
 const canvas = document.getElementById("simulation");
 const ctx = canvas.getContext("2d");
-let width = window.innerWidth;
-let height = window.innerHeight;
-canvas.width = width;
-canvas.height = height;
-
-window.addEventListener("resize", () => {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
-});
-
-const COLORS = {
-    red: "#ff3b3b",
-    green: "#3bff3b",
-    blue: "#3b3bff"
-};
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 let creatures = [];
 let foods = [];
+let birthStats = { red: 0, green: 0, blue: 0 };
+let deathStats = { red: 0, green: 0, blue: 0 };
 
+window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+// Настройки
 function getTypeSettings(type) {
     return {
         enabled: document.getElementById(`enable${type}`).checked,
@@ -106,72 +35,110 @@ function getGlobalSettings() {
     };
 }
 
+function capitalize(str) {
+    return str[0].toUpperCase() + str.slice(1);
+}
+
+const COLORS = {
+    red: "#ff3b3b",
+    green: "#3bff3b",
+    blue: "#3b3bff"
+};
+
+class Food {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+    }
+
+    draw() {
+        ctx.fillStyle = "#f0e68c";
+        ctx.fillRect(this.x - 3, this.y - 3, 6, 6);
+    }
+}
+
 class Creature {
     constructor(type, x, y, genes = null) {
         const global = getGlobalSettings();
         const local = getTypeSettings(capitalize(type));
-        this.x = x ?? Math.random() * width;
-        this.y = y ?? Math.random() * height;
-        this.radius = global.radius;
-        this.type = type;
-        this.color = COLORS[type];
-        this.energy = 100;
-        this.cooldown = 0;
-        this.alpha = 1;
-        this.age = 0;
 
+        this.type = type;
+        this.x = x ?? Math.random() * canvas.width;
+        this.y = y ?? Math.random() * canvas.height;
+        this.radius = global.radius;
+        this.color = COLORS[type];
         this.genes = genes ?? {
             speed: local.speed,
             aggression: local.aggression,
             hunger: local.hunger
         };
 
+        this.energy = 100;
+        this.age = 0;
+        this.cooldown = 0;
         this.angle = Math.random() * Math.PI * 2;
         this.turnSpeed = 0;
-        this.ai = new CreatureAI(this);
+
+        this.bornTime = Date.now();
+        this.deathStarted = null;
+
+        birthStats[type]++;
     }
 
     update() {
-        this.energy -= 0.05;
         this.age++;
-        if (this.cooldown > 0) this.cooldown--;
+        this.energy -= 0.05;
 
-        this.ai.think();
+        if (this.cooldown > 0) this.cooldown--;
+        this.think();
         this.move();
+
+        if (this.energy <= 0 && !this.deathStarted) {
+            this.deathStarted = Date.now();
+            deathStats[this.type]++;
+        }
     }
 
     move() {
-        const maxTurn = 0.05;
-        this.turnSpeed = Math.max(-maxTurn, Math.min(maxTurn, this.turnSpeed));
+        this.turnSpeed += (Math.random() - 0.5) * 0.02;
+        this.turnSpeed *= 0.9;
         this.angle += this.turnSpeed;
+
         const speed = this.genes.speed;
         this.x += Math.cos(this.angle) * speed;
         this.y += Math.sin(this.angle) * speed;
 
-        if (this.x < this.radius || this.x > width - this.radius) {
+        if (this.x < this.radius || this.x > canvas.width - this.radius) {
             this.angle = Math.PI - this.angle;
         }
-        if (this.y < this.radius || this.y > height - this.radius) {
+        if (this.y < this.radius || this.y > canvas.height - this.radius) {
             this.angle = -this.angle;
         }
     }
 
-    interact(other) {
-        if (this === other) return;
-        const dx = other.x - this.x;
-        const dy = other.y - this.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < this.radius * 4 && dist > 0) {
-            if (this.type === other.type && dist < this.radius * 2 && this.cooldown === 0 && other.cooldown === 0) {
-                if (creatures.length < getGlobalSettings().maxCreatures) {
-                    const childGenes = mutateGenes(avgGenes(this.genes, other.genes), this, other);
-                    creatures.push(new Creature(this.type, this.x, this.y, childGenes));
-                    this.energy -= 15;
-                    other.energy -= 15;
-                    this.cooldown = 100;
-                    other.cooldown = 100;
-                }
+    think() {
+        // Упрощённый ИИ: избегание смерти, поиск еды
+        let bestTarget = null;
+        let bestScore = -Infinity;
+
+        for (let f of foods) {
+            const dx = f.x - this.x;
+            const dy = f.y - this.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const score = this.genes.hunger * (1 / (dist + 1));
+            if (score > bestScore) {
+                bestScore = score;
+                bestTarget = { x: f.x, y: f.y };
             }
+        }
+
+        if (bestTarget) {
+            const dx = bestTarget.x - this.x;
+            const dy = bestTarget.y - this.y;
+            const angleTo = Math.atan2(dy, dx);
+            let delta = angleTo - this.angle;
+            delta = ((delta + Math.PI) % (2 * Math.PI)) - Math.PI;
+            this.turnSpeed += delta * 0.1;
         }
     }
 
@@ -187,82 +154,68 @@ class Creature {
     }
 
     draw() {
+        let alpha = 1;
+        let fillColor = this.color;
+        const now = Date.now();
+
+        if (this.bornTime && now - this.bornTime < 2000) {
+            alpha = Math.abs(Math.sin((now - this.bornTime) / 200)) * 0.6 + 0.4;
+        }
+
+        if (this.deathStarted) {
+            const dt = (now - this.deathStarted) / 1000;
+            if (dt >= 3) {
+                fillColor = "#000000";
+            } else if (dt >= 0) {
+                fillColor = "#888888";
+            }
+        }
+
         ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.angle);
-        ctx.globalAlpha = this.alpha;
-        ctx.fillStyle = this.color;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = fillColor;
         ctx.beginPath();
-        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fill();
         ctx.globalAlpha = 1;
         ctx.restore();
     }
 
     isDead() {
-        return this.alpha <= 0;
+        return this.deathStarted && Date.now() - this.deathStarted > 10000;
+    }
+
+    interact(other) {
+        if (this === other) return;
+        const dx = other.x - this.x;
+        const dy = other.y - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < this.radius * 2 && this.type === other.type && this.cooldown === 0 && other.cooldown === 0) {
+            if (creatures.length < getGlobalSettings().maxCreatures) {
+                const childGenes = averageGenes(this.genes, other.genes);
+                creatures.push(new Creature(this.type, this.x, this.y, childGenes));
+                this.energy -= 15;
+                other.energy -= 15;
+                this.cooldown = 100;
+                other.cooldown = 100;
+            }
+        }
     }
 }
 
-class Food {
-    constructor() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-    }
-
-    draw() {
-        ctx.globalAlpha = 0.4;
-        ctx.fillStyle = "#f0e68c";
-        ctx.fillRect(this.x - 3, this.y - 3, 6, 6);
-        ctx.globalAlpha = 1;
-    }
-}
-
-function capitalize(str) {
-    return str[0].toUpperCase() + str.slice(1);
-}
-
-function avgGenes(g1, g2) {
+function averageGenes(a, b) {
     return {
-        speed: (g1.speed + g2.speed) / 2,
-        aggression: (g1.aggression + g2.aggression) / 2,
-        hunger: (g1.hunger + g2.hunger) / 2
+        speed: (a.speed + b.speed) / 2,
+        aggression: (a.aggression + b.aggression) / 2,
+        hunger: (a.hunger + b.hunger) / 2
     };
-}
-
-function mutateGenes(g, parent1, parent2) {
-    const m = getGlobalSettings().mutationChance;
-    let newGenes = {
-        speed: Math.max(0.3, g.speed + (Math.random() - 0.5) * m),
-        aggression: clamp01(g.aggression + (Math.random() - 0.5) * m),
-        hunger: clamp01(g.hunger + (Math.random() - 0.5) * m)
-    };
-    const ageBonus = Math.min(1, (parent1.age + parent2.age) / 2000);
-    newGenes.speed += ageBonus * 0.1;
-    newGenes.hunger += ageBonus * 0.05;
-    return newGenes;
-}
-
-function clamp01(x) {
-    return Math.max(0, Math.min(1, x));
-}
-
-function updateStats() {
-    const stats = document.getElementById("stats");
-    const counts = { red: 0, green: 0, blue: 0 };
-    for (let c of creatures) counts[c.type]++;
-    stats.innerHTML = `
-        Красные: ${counts.red}<br>
-        Зелёные: ${counts.green}<br>
-        Синие: ${counts.blue}<br>
-        Еда: ${foods.length}<br>
-        Всего: ${creatures.length}
-    `;
 }
 
 function restartSimulation() {
     creatures = [];
     foods = [];
+    birthStats = { red: 0, green: 0, blue: 0 };
+    deathStats = { red: 0, green: 0, blue: 0 };
     for (let type of ["red", "green", "blue"]) {
         const set = getTypeSettings(capitalize(type));
         if (set.enabled) {
@@ -273,11 +226,20 @@ function restartSimulation() {
     }
 }
 
+function updateStats() {
+    document.getElementById("bornRed").textContent = birthStats.red;
+    document.getElementById("bornGreen").textContent = birthStats.green;
+    document.getElementById("bornBlue").textContent = birthStats.blue;
+    document.getElementById("deadRed").textContent = deathStats.red;
+    document.getElementById("deadGreen").textContent = deathStats.green;
+    document.getElementById("deadBlue").textContent = deathStats.blue;
+}
+
 function animate() {
     const s = getGlobalSettings();
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (foods.length < s.maxFood && Math.random() < 0.1) {
+    if (foods.length < s.maxFood && Math.random() < 0.2) {
         foods.push(new Food());
     }
 
