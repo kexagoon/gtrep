@@ -237,7 +237,8 @@ function updateStats() {
 
 function animate() {
     const s = getGlobalSettings();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (foods.length < s.maxFood && Math.random() < 0.2) {
         foods.push(new Food());
