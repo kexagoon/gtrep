@@ -13,12 +13,145 @@
       overflow: hidden;
     }
     canvas { display: block; }
-    ...
+    #open-settings {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.2);
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #000;
+      z-index: 20;
+    }
+    #settings-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 360px;
+      height: 100vh;
+      background: rgba(255,255,255,0.95);
+      padding: 15px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      display: none;
+      z-index: 15;
+      color: black;
+    }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .tab-button {
+      flex: 1;
+      padding: 8px;
+      text-align: center;
+      background: #ddd;
+      border: 1px solid #bbb;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .tab-button.active { background: #ccc; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .group { margin-bottom: 15px; }
+    .group label { display: block; margin: 5px 0; }
+    input[type="number"], input[type="checkbox"] {
+      width: 60px; margin-left: 5px;
+    }
+    button { margin-top: 10px; }
+    .dot {
+      display:inline-block;
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      margin-right:5px;
+    }
   </style>
 </head>
 <body>
 <canvas id="simulation"></canvas>
+
 <div id="open-settings">⚙ Настройки</div>
-<!-- [весь остальной код идентичен, включая вкладки, описания, статистику и подключение main.js] -->
+
+<div id="settings-panel">
+  <button onclick="toggleSettings()">Закрыть</button>
+
+  <div class="group">
+    <label>Макс. существ: <input type="number" id="maxCreatures" value="150"></label>
+    <label>Шанс мутации: <input type="number" id="mutationChance" value="0.1" step="0.01"></label>
+    <label>Макс. еды: <input type="number" id="maxFood" value="50"></label>
+    <label>Размер существ: <input type="number" id="radius" value="5"></label>
+  </div>
+
+  <div class="tabs">
+    <div class="tab-button active" data-tab="red">Красные</div>
+    <div class="tab-button" data-tab="green">Зелёные</div>
+    <div class="tab-button" data-tab="blue">Синие</div>
+    <div class="tab-button" data-tab="info">О существах</div>
+    <div class="tab-button" data-tab="stats">Статистика</div>
+  </div>
+
+  <div id="tab-red" class="tab-content active">
+    <label><input type="checkbox" id="enableRed" checked> Участвуют</label>
+    <label>Кол-во: <input type="number" id="startRed" value="20"></label>
+    <label>Скорость: <input type="number" id="speedRed" value="1.5" step="0.1"></label>
+    <label>Агрессия: <input type="number" id="aggrRed" value="0.7" step="0.1"></label>
+    <label>Жадность: <input type="number" id="hungRed" value="0.5" step="0.1"></label>
+  </div>
+
+  <div id="tab-green" class="tab-content">
+    <label><input type="checkbox" id="enableGreen" checked> Участвуют</label>
+    <label>Кол-во: <input type="number" id="startGreen" value="20"></label>
+    <label>Скорость: <input type="number" id="speedGreen" value="1.2" step="0.1"></label>
+    <label>Агрессия: <input type="number" id="aggrGreen" value="0.3" step="0.1"></label>
+    <label>Жадность: <input type="number" id="hungGreen" value="0.8" step="0.1"></label>
+  </div>
+
+  <div id="tab-blue" class="tab-content">
+    <label><input type="checkbox" id="enableBlue" checked> Участвуют</label>
+    <label>Кол-во: <input type="number" id="startBlue" value="20"></label>
+    <label>Скорость: <input type="number" id="speedBlue" value="1.0" step="0.1"></label>
+    <label>Агрессия: <input type="number" id="aggrBlue" value="0.6" step="0.1"></label>
+    <label>Жадность: <input type="number" id="hungBlue" value="0.6" step="0.1"></label>
+  </div>
+
+  <div id="tab-info" class="tab-content">
+    <p><span class="dot" style="background:#ff3b3b;"></span><b>Красные</b> — агрессивные, охотятся на зелёных. Высокая скорость, низкая жадность.</p>
+    <p><span class="dot" style="background:#3bff3b;"></span><b>Зелёные</b> — избегают красных, любят еду. Средняя скорость, высокая жадность.</p>
+    <p><span class="dot" style="background:#3b3bff;"></span><b>Синие</b> — охотятся на зелёных, сбалансированное поведение и питание.</p>
+  </div>
+
+  <div id="tab-stats" class="tab-content">
+    <p><b>Рождений:</b> <span id="bornRed">0</span> красных, <span id="bornGreen">0</span> зелёных, <span id="bornBlue">0</span> синих</p>
+    <p><b>Смертей:</b> <span id="deadRed">0</span> красных, <span id="deadGreen">0</span> зелёных, <span id="deadBlue">0</span> синих</p>
+  </div>
+
+  <button onclick="restartSimulation()">Перезапустить</button>
+  <div id="stats" style="margin-top:10px;"></div>
+</div>
+
+<script>
+  function toggleSettings() {
+    const panel = document.getElementById("settings-panel");
+    panel.style.display = panel.style.display === "block" ? "none" : "block";
+  }
+
+  document.getElementById("open-settings").addEventListener("click", toggleSettings);
+
+  document.querySelectorAll(".tab-button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+    });
+  });
+</script>
+
+<script src="main.js"></script>
 </body>
 </html>
