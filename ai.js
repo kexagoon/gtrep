@@ -1,3 +1,4 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/ai.js b/ai.js
 index 83e3ee1ff3084de48aa94cf1936471fa376f1017..6a9b18d81bf525671a57d54b2a957af64a4ab061 100644
 --- a/ai.js
@@ -121,3 +122,6 @@ index 83e3ee1ff3084de48aa94cf1936471fa376f1017..6a9b18d81bf525671a57d54b2a957af6
 +        }
 +    }
 +}
+ 
+EOF
+)
