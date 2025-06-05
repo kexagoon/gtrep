@@ -1,8 +1,9 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/main.js b/main.js
-index b5217c1917c946992d04bdeb3755c92365439798..d7b942a2cab9eadd239e4c6a1f73a3b35eef1fa1 100644
+index b5217c1917c946992d04bdeb3755c92365439798..428158956b6e18c85daf2736eb03b8d761eca972 100644
 --- a/main.js
 +++ b/main.js
-@@ -1,264 +1,267 @@
+@@ -1,264 +1,268 @@
 -diff --git a/main.js b/main.js
 -index 92194b6cd4af361ff863e84ae510d614e2772506..dc76f5a1920edddd3f8794141948df2a95da998d 100644
 ---- a/main.js
@@ -267,6 +268,7 @@ index b5217c1917c946992d04bdeb3755c92365439798..d7b942a2cab9eadd239e4c6a1f73a3b3
 - 
 - restartSimulation();
 - animate();
++"use strict";
 +
 +// Объявление глобальных переменных
 +const canvas = document.getElementById("simulation");
@@ -534,3 +536,6 @@ index b5217c1917c946992d04bdeb3755c92365439798..d7b942a2cab9eadd239e4c6a1f73a3b3
 +
 +restartSimulation();
 +animate();
+ 
+EOF
+)
