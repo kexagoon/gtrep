@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BT Script Builder Mobile Pro</title>
+    <title>BT Script Builder Mobile Ultra</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -14,6 +14,7 @@
             --bg-panel: #141a2e;
             --accent-cyan: #00d4ff;
             --accent-green: #00ff88;
+            --accent-purple: #bd93f9;
             --text-main: #ffffff;
             --text-dim: #a0aec0;
             --danger: #ff6b35;
@@ -36,10 +37,9 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
-            opacity: 0.3;
+            opacity: 0.2;
         }
 
-        /* ШАПКА */
         header {
             padding: 10px 12px;
             background: rgba(10, 14, 26, 0.95);
@@ -53,14 +53,8 @@
         .header-top { display: flex; justify-content: space-between; align-items: center; }
         .header-btns { display: flex; gap: 6px; }
 
-        h1 {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            color: var(--accent-cyan);
-            text-shadow: 0 0 8px var(--accent-cyan);
-        }
+        h1 { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent-cyan); text-shadow: 0 0 8px var(--accent-cyan); }
 
-        /* КНОПКИ */
         .btn {
             padding: 6px 10px;
             border-radius: 4px;
@@ -72,37 +66,39 @@
             text-transform: uppercase;
         }
 
-        .btn-gen { background: var(--accent-cyan); color: var(--bg-dark); border-color: var(--accent-cyan); box-shadow: 0 0 10px rgba(0, 212, 255, 0.3); }
+        .btn-gen { background: var(--accent-cyan); color: var(--bg-dark); }
         .btn-reset { background: rgba(255, 107, 53, 0.1); color: var(--danger); border-color: var(--danger); }
         .btn-info { background: rgba(0, 255, 136, 0.1); color: var(--accent-green); border-color: var(--accent-green); }
 
-        /* ТУЛБАР */
+        .toolbar-label { font-size: 10px; color: var(--accent-cyan); padding: 5px 12px 0; font-family: 'JetBrains Mono'; text-transform: uppercase; opacity: 0.7; }
+        
         .toolbar-container {
-            padding: 8px;
             background: var(--bg-panel);
             border-bottom: 1px solid var(--border);
             overflow-x: auto;
+            padding-bottom: 8px;
         }
 
-        .toolbar { display: flex; gap: 6px; }
+        .toolbar { display: flex; gap: 6px; padding: 5px 8px; }
 
         .cmd-btn {
             background: rgba(0, 212, 255, 0.05);
             border: 1px solid var(--border);
             color: var(--accent-cyan);
-            padding: 8px 14px;
+            padding: 8px 12px;
             border-radius: 4px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
+            font-size: 11px;
             white-space: nowrap;
         }
 
-        /* РАБОЧАЯ ОБЛАСТЬ */
-        .script-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 12px;
+        .tpl-btn {
+            background: rgba(189, 147, 249, 0.1);
+            border: 1px solid var(--accent-purple);
+            color: var(--accent-purple);
         }
+
+        .script-area { flex: 1; overflow-y: auto; padding: 12px; }
 
         .command-item {
             background: var(--bg-panel);
@@ -119,70 +115,16 @@
         .command-text b { color: var(--accent-cyan); }
         .drag-handle { color: var(--text-dim); font-size: 18px; padding: 0 5px; }
 
-        .delete-btn {
-            background: none; border: 1px solid var(--danger); color: var(--danger);
-            width: 24px; height: 24px; border-radius: 4px; line-height: 1;
-        }
+        .delete-btn { background: none; border: 1px solid var(--danger); color: var(--danger); width: 24px; height: 24px; border-radius: 4px; }
 
-        /* ФУТЕР */
-        footer {
-            padding: 12px;
-            background: var(--bg-panel);
-            border-top: 1px solid var(--border);
-        }
+        footer { padding: 12px; background: var(--bg-panel); border-top: 1px solid var(--border); }
 
-        .cyber-select {
-            width: 100%;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            color: white;
-            padding: 10px;
-            border-radius: 4px;
-            font-size: 13px;
-        }
+        .cyber-select { width: 100%; background: var(--bg-dark); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 4px; }
 
-        /* МОДАЛКИ */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(8px);
-            z-index: 2000;
-            align-items: center; justify-content: center;
-            padding: 20px;
-        }
-
-        .modal-content {
-            background: var(--bg-panel);
-            border: 1px solid var(--accent-cyan);
-            padding: 20px;
-            border-radius: 8px;
-            width: 100%;
-            max-width: 350px;
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
-        }
-
-        .modal h2 { font-size: 14px; font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan); margin-bottom: 15px; text-transform: uppercase; }
-
-        .cyber-textarea {
-            width: 100%; height: 180px;
-            background: #000; border: 1px solid var(--border);
-            color: var(--accent-green); padding: 10px;
-            font-family: 'JetBrains Mono', monospace; font-size: 11px;
-            margin-bottom: 10px;
-        }
-
-        .cyber-input {
-            width: 100%; background: var(--bg-dark); border: 1px solid var(--accent-cyan);
-            color: white; padding: 12px; border-radius: 4px; margin-bottom: 15px;
-        }
-
-        /* ШПАРАГАЛКА */
-        .help-list { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
-        .help-list b { color: var(--text-main); }
-        .help-item { margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
-
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--bg-panel); border: 1px solid var(--accent-cyan); padding: 20px; border-radius: 8px; width: 100%; max-width: 350px; }
+        .cyber-textarea { width: 100%; height: 180px; background: #000; border: 1px solid var(--border); color: var(--accent-green); padding: 10px; font-family: 'JetBrains Mono'; font-size: 11px; margin-bottom: 10px; }
+        .cyber-input { width: 100%; background: var(--bg-dark); border: 1px solid var(--accent-cyan); color: white; padding: 12px; border-radius: 4px; margin-bottom: 15px; }
     </style>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
@@ -193,16 +135,17 @@
 
     <header>
         <div class="header-top">
-            <h1>BT BUILDER <span style="color:var(--accent-green)">MOBILE</span></h1>
+            <h1>BT BUILDER <span style="color:var(--accent-green)">ULTRA</span></h1>
             <div class="header-btns">
                 <button id="help-btn" class="btn btn-info">ИНФО</button>
-                <button id="generate-btn" class="btn btn-gen">СГЕНЕРИРОВАТЬ</button>
+                <button id="generate-btn" class="btn btn-gen">СКРИПТ</button>
                 <button id="reset-btn" class="btn btn-reset">СБРОС</button>
             </div>
         </div>
     </header>
 
     <div class="toolbar-container">
+        <div class="toolbar-label">Основы</div>
         <div class="toolbar">
             <button class="cmd-btn" data-type="STRING">STRING</button>
             <button class="cmd-btn" data-type="DELAY">DELAY</button>
@@ -211,15 +154,22 @@
             <button class="cmd-btn" data-type="CTRL">CTRL</button>
             <button class="cmd-btn" data-type="ALT">ALT</button>
             <button class="cmd-btn" data-type="SHIFT">SHIFT</button>
-            <button class="cmd-btn" data-type="SPACE">SPACE</button>
-            <button class="cmd-btn" data-type="TAB">TAB</button>
+        </div>
+        <div class="toolbar-label">Шаблоны (Заготовки)</div>
+        <div class="toolbar">
+            <button class="cmd-btn tpl-btn" data-tpl="pin_7878">PIN 7878</button>
+            <button class="cmd-btn tpl-btn" data-tpl="ios_screen">iOS Screen</button>
+            <button class="cmd-btn tpl-btn" data-tpl="android_lock">Android Lock</button>
+            <button class="cmd-btn tpl-btn" data-tpl="win_cmd">Win CMD</button>
+            <button class="cmd-btn tpl-btn" data-tpl="mac_term">Mac Term</button>
+            <button class="cmd-btn tpl-btn" data-tpl="linux_root">Linux Root</button>
         </div>
     </div>
 
     <main class="script-area">
         <div id="command-list">
             <div style="text-align: center; color: var(--text-dim); margin-top: 50px; font-size: 12px; font-family: 'JetBrains Mono';">
-                [ ОЖИДАНИЕ ВВОДА... ]
+                [ ОЖИДАНИЕ КОМАНД... ]
             </div>
         </div>
     </main>
@@ -232,68 +182,34 @@
         </select>
     </footer>
 
-    <div id="help-modal" class="modal">
-        <div class="modal-content">
-            <h2>Шпаргалка команд</h2>
-            <div class="help-list">
-                <div class="help-item"><b>STRING:</b> Печатает текст. Вводи адрес сайта или команды терминала.</div>
-                <div class="help-item"><b>DELAY:</b> Пауза. Писать в миллисекундах (1000 = 1 секунда). Нужно, чтобы система успела "прогрузиться".</div>
-                <div class="help-item"><b>GUI:</b> Клавиша Windows или Command (Mac). Обычно GUI + R открывает "Выполнить".</div>
-                <div class="help-item"><b>ENTER:</b> Нажатие "Ввод". Используй после STRING для запуска команд.</div>
-                <div class="help-item"><b>CTRL/ALT/SHIFT:</b> Модификаторы для горячих клавиш.</div>
-            </div>
-            <button onclick="closeModals()" class="btn btn-gen" style="width:100%; margin-top:10px;">ПОНЯТНО</button>
-        </div>
-    </div>
-
-    <div id="result-modal" class="modal">
-        <div class="modal-content">
-            <h2>ГОТОВЫЙ СКРИПТ</h2>
-            <textarea id="result-output" class="cyber-textarea" readonly></textarea>
-            <button id="copy-btn" class="btn btn-gen" style="width:100%;">КОПИРОВАТЬ</button>
-            <button onclick="closeModals()" class="btn btn-reset" style="width:100%; margin-top:8px;">ЗАКРЫТЬ</button>
-        </div>
-    </div>
-
-    <div id="edit-modal" class="modal">
-        <div class="modal-content">
-            <h2 id="edit-modal-title">ВВОД</h2>
-            <input type="text" id="edit-input" class="cyber-input" placeholder="Введите значение...">
-            <button id="save-edit-btn" class="btn btn-gen" style="width:100%;">ДОБАВИТЬ</button>
-            <button onclick="closeModals()" class="btn btn-reset" style="width:100%; margin-top:8px;">ОТМЕНА</button>
-        </div>
-    </div>
+    <div id="help-modal" class="modal"><div class="modal-content"><h2 id="h_title">Справка</h2><div id="h_body" style="font-size:11px; color:var(--text-dim); line-height:1.4;"></div><button onclick="closeModals()" class="btn btn-gen" style="width:100%; margin-top:15px;">ОК</button></div></div>
+    <div id="result-modal" class="modal"><div class="modal-content"><h2>ГОТОВЫЙ КОД</h2><textarea id="result-output" class="cyber-textarea" readonly></textarea><button id="copy-btn" class="btn btn-gen" style="width:100%;">КОПИРОВАТЬ</button><button onclick="closeModals()" class="btn btn-reset" style="width:100%; margin-top:8px;">ЗАКРЫТЬ</button></div></div>
+    <div id="edit-modal" class="modal"><div class="modal-content"><h2 id="edit-modal-title">ВВОД</h2><input type="text" id="edit-input" class="cyber-input"><button id="save-edit-btn" class="btn btn-gen" style="width:100%;">ДОБАВИТЬ</button></div></div>
 
     <script>
         let scriptCommands = [];
         let commandIdCounter = 0;
-
         const commandList = document.getElementById('command-list');
-        const helpModal = document.getElementById('help-modal');
-        const resultModal = document.getElementById('result-modal');
         const editModal = document.getElementById('edit-modal');
         const editInput = document.getElementById('edit-input');
 
-        // Сортировка
-        new Sortable(commandList, {
-            animation: 150,
-            handle: '.drag-handle',
-            onEnd: (evt) => {
-                const movedItem = scriptCommands.splice(evt.oldIndex, 1)[0];
-                scriptCommands.splice(evt.newIndex, 0, movedItem);
-            }
-        });
+        new Sortable(commandList, { animation: 150, handle: '.drag-handle', onEnd: (evt) => {
+            const movedItem = scriptCommands.splice(evt.oldIndex, 1)[0];
+            scriptCommands.splice(evt.newIndex, 0, movedItem);
+        }});
 
-        // Кнопки тулбара
-        document.querySelectorAll('.cmd-btn').forEach(btn => {
+        // Обработка обычных кнопок
+        document.querySelectorAll('.cmd-btn:not(.tpl-btn)').forEach(btn => {
             btn.addEventListener('click', () => {
                 const type = btn.dataset.type;
-                if (type === 'STRING' || type === 'DELAY') {
-                    openEditModal(type);
-                } else {
-                    addCommand(type);
-                }
+                if (type === 'STRING' || type === 'DELAY') openEditModal(type);
+                else addCommand(type);
             });
+        });
+
+        // Обработка шаблонов
+        document.querySelectorAll('.tpl-btn').forEach(btn => {
+            btn.addEventListener('click', () => addTemplate(btn.dataset.tpl));
         });
 
         function addCommand(type, value = null) {
@@ -301,87 +217,86 @@
             render();
         }
 
+        function addTemplate(tpl) {
+            if (tpl === 'pin_7878') {
+                addCommand('STRING', ' '); [span_1](start_span)// Пробуждение[span_1](end_span)
+                addCommand('DELAY', '1000');
+                addCommand('STRING', '7'); addCommand('DELAY', '500');
+                addCommand('STRING', '8'); addCommand('DELAY', '500');
+                addCommand('STRING', '7'); addCommand('DELAY', '500');
+                [span_2](start_span)addCommand('STRING', '8');[span_2](end_span)
+            } else if (tpl === 'ios_screen') {
+                addCommand('GUI', 'SHIFT'); addCommand('STRING', '3'); // Скриншот iOS
+            } else if (tpl === 'android_lock') {
+                addCommand('GUI', 'L'); // Блокировка Android
+            } else if (tpl === 'win_cmd') {
+                addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'cmd'); addCommand('ENTER');
+            } else if (tpl === 'mac_term') {
+                addCommand('GUI', ' '); addCommand('DELAY', '300'); addCommand('STRING', 'terminal'); addCommand('ENTER');
+            } else if (tpl === 'linux_root') {
+                addCommand('CTRL', 'ALT'); addCommand('STRING', 't'); addCommand('DELAY', '500'); addCommand('STRING', 'sudo su'); addCommand('ENTER');
+            }
+        }
+
         function openEditModal(type) {
             document.getElementById('edit-modal-title').textContent = type;
-            editInput.value = '';
-            editModal.style.display = 'flex';
+            editInput.value = ''; editModal.style.display = 'flex';
             setTimeout(() => editInput.focus(), 100);
         }
 
         document.getElementById('save-edit-btn').onclick = () => {
-            const type = document.getElementById('edit-modal-title').textContent;
-            if (editInput.value.trim() === "") return alert("Поле не может быть пустым!");
-            addCommand(type, editInput.value);
+            addCommand(document.getElementById('edit-modal-title').textContent, editInput.value);
             closeModals();
         };
 
         function render() {
             if (scriptCommands.length === 0) {
-                commandList.innerHTML = '<div style="text-align: center; color: var(--text-dim); margin-top: 50px; font-size: 12px; font-family: \'JetBrains Mono\';">[ ОЖИДАНИЕ ВВОДА... ]</div>';
+                commandList.innerHTML = '<div style="text-align: center; color: var(--text-dim); margin-top: 50px; font-size: 12px; font-family: \'JetBrains Mono\';">[ ОЖИДАНИЕ КОМАНД... ]</div>';
                 return;
             }
             commandList.innerHTML = '';
             scriptCommands.forEach((cmd, index) => {
                 const div = document.createElement('div');
                 div.className = 'command-item';
-                div.innerHTML = `
-                    <span class="drag-handle">☰</span>
-                    <span class="command-text"><b>${cmd.type}</b> ${cmd.value ? ': ' + cmd.value : ''}</span>
-                    <button class="delete-btn" onclick="deleteCmd(${index})">×</button>
-                `;
+                div.innerHTML = `<span class="drag-handle">☰</span><span class="command-text"><b>${cmd.type}</b> ${cmd.value ? ': ' + cmd.value : ''}</span><button class="delete-btn" onclick="deleteCmd(${index})">×</button>`;
                 commandList.appendChild(div);
             });
         }
 
-        window.deleteCmd = (index) => {
-            scriptCommands.splice(index, 1);
-            render();
+        window.deleteCmd = (index) => { scriptCommands.splice(index, 1); render(); };
+        window.closeModals = () => { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); };
+
+        document.getElementById('help-btn').onclick = () => {
+            document.getElementById('h_body').innerHTML = `
+                <b>STRING:</b> Ввод текста.<br>
+                <b>DELAY:</b> Пауза (1000 = 1 сек).<br>
+                <b>GUI:</b> Клавиша Win/Cmd.<br><br>
+                <b>ШАБЛОНЫ:</b> Наборы команд для быстрого взлома/автоматизации.
+            `;
+            document.getElementById('help-modal').style.display = 'flex';
         };
 
-        function closeModals() {
-            helpModal.style.display = 'none';
-            resultModal.style.display = 'none';
-            editModal.style.display = 'none';
-        }
+        document.getElementById('reset-btn').onclick = () => { if (confirm('Очистить?')) { scriptCommands = []; render(); } };
 
-        document.getElementById('help-btn').onclick = () => helpModal.style.display = 'flex';
-
-        document.getElementById('reset-btn').onclick = () => {
-            if (confirm('Удалить весь скрипт?')) {
-                scriptCommands = [];
-                render();
-            }
-        };
-
-        // Генерация
         document.getElementById('generate-btn').onclick = () => {
-            if (scriptCommands.length === 0) return alert('Сначала добавьте команды!');
-            let format = document.getElementById('export-format').value;
-            let output = scriptCommands.map(c => {
-                if (c.type === 'STRING') return 'STRING ' + c.value;
-                if (c.type === 'DELAY') return 'DELAY ' + c.value;
-                return c.type;
-            }).join('\n');
-            
+            if (scriptCommands.length === 0) return;
+            let output = scriptCommands.map(c => (c.type === 'STRING' || c.type === 'DELAY') ? c.type + ' ' + c.value : c.type).join('\n');
             document.getElementById('result-output').value = output;
-            resultModal.style.display = 'flex';
+            document.getElementById('result-modal').style.display = 'flex';
         };
 
         document.getElementById('copy-btn').onclick = () => {
-            const area = document.getElementById('result-output');
-            area.select();
+            document.getElementById('result-output').select();
             document.execCommand('copy');
-            alert('Скопировано в буфер!');
+            alert('OK!');
         };
 
-        // Анимация фона
-        const canvas = document.getElementById('background-canvas');
-        const pixiApp = new PIXI.Application({ view: canvas, resizeTo: window, backgroundAlpha: 0 });
+        // Фон
+        const pixiApp = new PIXI.Application({ view: document.getElementById('background-canvas'), resizeTo: window, backgroundAlpha: 0 });
         const grid = new PIXI.Graphics();
         pixiApp.stage.addChild(grid);
         pixiApp.ticker.add(() => {
-            grid.clear();
-            grid.lineStyle(1, 0x00d4ff, 0.05);
+            grid.clear(); grid.lineStyle(1, 0x00d4ff, 0.05);
             for(let i=0; i<window.innerWidth; i+=50) { grid.moveTo(i, 0); grid.lineTo(i, window.innerHeight); }
             for(let i=0; i<window.innerHeight; i+=50) { grid.moveTo(0, i); grid.lineTo(window.innerWidth, i); }
         });
