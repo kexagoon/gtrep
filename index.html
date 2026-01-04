@@ -7,272 +7,357 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* ЦВЕТОВАЯ ПАЛИТРА КИБЕРПАНКА */
+        :root {
+            --bg-dark: #0a0e1a;
+            --bg-panel: #141a2e;
+            --accent-cyan: #00d4ff;
+            --accent-green: #00ff88;
+            --text-main: #ffffff;
+            --text-dim: #a0aec0;
+            --danger: #ff6b35;
+            --border: #2a3f5f;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            overflow: hidden; /* Фиксируем экран для мобилок */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #background-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        /* ШАПКА */
+        header {
+            padding: 12px 16px;
+            background: rgba(10, 14, 26, 0.9);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        /* ТУЛБАР (КНОПКИ) */
+        .toolbar-container {
+            padding: 10px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .toolbar { display: flex; gap: 8px; }
+
+        .cmd-btn {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .cmd-btn:active { background: var(--accent-cyan); color: var(--bg-dark); }
+
+        /* СПИСОК КОМАНД */
+        .script-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: rgba(20, 26, 46, 0.5);
+        }
+
+        .command-item {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            margin-bottom: 8px;
+            padding: 12px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .drag-handle { color: var(--text-dim); cursor: grab; font-size: 18px; }
+
+        .command-text { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+
+        .delete-btn {
+            background: rgba(255, 107, 53, 0.2);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            width: 28px; height: 28px; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ФУТЕР И ЭКСПОРТ */
+        footer {
+            padding: 16px;
+            background: var(--bg-dark);
+            border-top: 1px solid var(--border);
+        }
+
+        .cyber-select {
+            width: 100%;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .cyber-button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+        }
+
+        .cyber-button.primary {
+            background: var(--accent-cyan);
+            color: var(--bg-dark);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+        }
+
+        /* МОДАЛКИ */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center; justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--bg-panel);
+            border: 1px solid var(--accent-cyan);
+            padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .cyber-textarea {
+            width: 100%;
+            height: 150px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--accent-green);
+            padding: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+
+        .cyber-input {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--accent-cyan);
+            color: white;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
 <body>
-    <script type="module">
-        import { Application, Assets, Sprite, AddColorMatrixFilter, AdvancedBloomFilter } from 'https://cdn.skypack.dev/pixi.js';
+    <canvas id="background-canvas"></canvas>
 
-        (async () =>
-        {
-            // Create a new application
-            const app = new Application();
+    <header>
+        <h1>BT SCRIPT <span style="color:var(--accent-green)">BUILDER</span></h1>
+        <button id="reset-btn" class="cmd-btn" style="border-color:var(--danger); color:var(--danger)">СБРОС</button>
+    </header>
 
-            // Initialize the application
-            await app.init({ resizeTo: window });
-
-            // Append the application canvas to the document body
-            document.body.appendChild(app.canvas);
-            app.canvas.style.position = 'fixed';
-            app.canvas.style.top = '0';
-            app.canvas.style.left = '0';
-            app.canvas.style.zIndex = '-1';
-            app.canvas.style.opacity = '0.6'; // Немного затемним фон для читаемости
-
-            // Load the texture
-            const texture = await Assets.load('https://pixijs.com/assets/bg_scene_rotate.jpg');
-
-            // Create color filters
-            const colorMatrix = new AddColorMatrixFilter();
-            colorMatrix.desaturate();
-            colorMatrix.contrast(1.5, false);
-            colorMatrix.brightness(0.8, false);
-
-            const colorMatrix2 = new AddColorMatrixFilter();
-            colorMatrix2.lsd(true); // Киберпанк эффект
-
-            const bloom = new AdvancedBloomFilter({ threshold: 0.1, bloomScale: 1.5, blur: 8, quality: 10 });
-
-            // Create sprites
-            const bgFront = new Sprite(texture);
-            const bgBack = new Sprite(texture);
-
-            // Configure sprites
-            bgBack.anchor.set(0.5);
-            bgFront.anchor.set(0.5);
-            bgBack.filters = [colorMatrix, colorMatrix2, bloom];
-            bgFront.filters = [colorMatrix, colorMatrix2, bloom];
-
-            // Set sizes and positions
-            const container = app.stage;
-            container.addChild(bgBack, bgFront);
-
-            function resize() {
-                const width = app.screen.width;
-                const height = app.screen.height;
-                const scale = Math.max(width / texture.width, height / texture.height) * 1.2;
-
-                bgBack.scale.set(scale);
-                bgFront.scale.set(scale);
-                bgBack.position.set(width / 2, height / 2);
-                bgFront.position.set(width / 2, height / 2);
-            }
-            resize();
-            window.addEventListener('resize', resize);
-
-            // Animation variables
-            let tick = 0;
-            // Make app globally accessible for the toggle switch
-            window.pixiApp = app;
-
-            // Animate
-            app.ticker.add(() =>
-            {
-                tick += 0.005;
-                bgFront.rotation += -0.002;
-                bgBack.rotation -= 0.001;
-                bgBack.alpha = 0.5 + Math.cos(tick) * 0.5;
-            });
-        })();
-    </script>
-
-    <div class="app-container">
-        <header>
-            <div class="header-content">
-                 <h1>BT Script Builder <span class="cyber-glitch">Mobile</span></h1>
-                 <div class="header-controls">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="anim-toggle" checked>
-                        <span class="toggle-slider">Anim</span>
-                    </label>
-                    <button id="reset-btn" class="cyber-button danger small">СБРОС</button>
-                 </div>
-            </div>
-        </header>
-
-        <main>
-            <div class="toolbar-container custom-scrollbar">
-                <div class="toolbar">
-                    <button class="cmd-btn" data-type="STRING">STRING</button>
-                    <button class="cmd-btn" data-type="DELAY">DELAY</button>
-                    <button class="cmd-btn key-btn" data-type="ENTER">ENTER</button>
-
-                    <button class="cmd-btn mod-btn" data-type="GUI">GUI ⌘</button>
-                    <button class="cmd-btn mod-btn" data-type="CTRL">CTRL</button>
-                    <button class="cmd-btn mod-btn" data-type="ALT">ALT</button>
-                    <button class="cmd-btn mod-btn" data-type="SHIFT">SHIFT</button>
-
-                    <button class="cmd-btn key-btn" data-type="TAB">TAB</button>
-                    <button class="cmd-btn key-btn" data-type="ESC">ESC</button>
-                    <button class="cmd-btn key-btn" data-type="BACKSPACE">BKSP</button>
-                    <button class="cmd-btn key-btn" data-type="DELETE">DEL</button>
-
-                    <button class="cmd-btn arrow-btn" data-type="UPARROW">↑</button>
-                    <button class="cmd-btn arrow-btn" data-type="DOWNARROW">↓</button>
-                    <button class="cmd-btn arrow-btn" data-type="LEFTARROW">←</button>
-                    <button class="cmd-btn arrow-btn" data-type="RIGHTARROW">→</button>
-                    
-                    <button class="cmd-btn f-btn" data-type="F1">F1</button>
-                    <button class="cmd-btn f-btn" data-type="F2">F2</button>
-                    <button class="cmd-btn f-btn" data-type="F5">F5</button>
-                    <button class="cmd-btn f-btn" data-type="F11">F11</button>
-                    <button class="cmd-btn f-btn" data-type="F12">F12</button>
-
-                    <button class="cmd-btn media-btn" data-type="MEDIA_VOLUME_UP" title="Volume Up">VOL+</button>
-                    <button class="cmd-btn media-btn" data-type="MEDIA_VOLUME_DOWN" title="Volume Down">VOL-</button>
-                    <button class="cmd-btn media-btn" data-type="MEDIA_PLAY_PAUSE" title="Play/Pause">⏯</button>
-                    <button class="cmd-btn media-btn" data-type="MEDIA_NEXT" title="Next Track">⏭</button>
-
-                     <button class="cmd-btn sys-btn" data-type="CAPSLOCK">CAPS</button>
-                    <button class="cmd-btn sys-btn" data-type="PRINTSCREEN">PrtSc</button>
-                    <button class="cmd-btn sys-btn" data-type="SPACE">SPACE</button>
-
-                    <button class="cmd-btn combo-btn" data-combo="GUI r">Win+R</button>
-                    <button class="cmd-btn combo-btn" data-combo="CTRL c">Ctrl+C</button>
-                    <button class="cmd-btn combo-btn" data-combo="CTRL v">Ctrl+V</button>
-                    <button class="cmd-btn combo-btn" data-combo="ALT F4">Alt+F4</button>
-                     <button class="cmd-btn combo-btn" data-combo="CTRL ALT DELETE">Ctrl+Alt+Del</button>
-
-                </div>
-            </div>
-
-            <div class="script-area custom-scrollbar">
-                <div id="command-list" class="command-list">
-                    <div class="empty-placeholder">Нажмите на кнопки выше, чтобы добавить команды</div>
-                </div>
-            </div>
-        </main>
-
-        <footer>
-             <div class="export-options">
-                 <div class="format-select-group">
-                    <label for="export-format">Формат:</label>
-                    <select id="export-format" class="cyber-select">
-                        <option value="ducky">DuckyScript (.txt)</option>
-                        <option value="flipper">Flipper Zero (.sub)</option>
-                        <option value="esp32">Arduino ESP32 (.ino)</option>
-                    </select>
-                 </div>
-                 <div class="template-select-group">
-                     <select id="quick-template" class="cyber-select">
-                         <option value="">Быстрые шаблоны...</option>
-                         <option value="win_cmd">Windows CMD (Админ)</option>
-                         <option value="win_ps">Windows PowerShell</option>
-                         <option value="mac_term">macOS Terminal</option>
-                         <option value="android_browser">Android Browser</option>
-                     </select>
-                 </div>
-             </div>
-             <div class="action-buttons">
-                 <button id="generate-btn" class="cyber-button primary">Сгенерировать</button>
-             </div>
-        </footer>
-
-        <div id="result-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-btn">&times;</span>
-                <h2>Результат (<span id="result-format-name"></span>)</h2>
-                <textarea id="result-output" class="cyber-textarea custom-scrollbar" readonly></textarea>
-                <div class="modal-actions">
-                    <button id="copy-btn" class="cyber-button">Копировать</button>
-                    <button id="download-btn" class="cyber-button alt-action">Скачать файл</button>
-                </div>
-            </div>
+    <div class="toolbar-container">
+        <div class="toolbar">
+            <button class="cmd-btn" data-type="STRING">STRING</button>
+            <button class="cmd-btn" data-type="DELAY">DELAY</button>
+            <button class="cmd-btn" data-type="ENTER">ENTER</button>
+            <button class="cmd-btn" data-type="GUI">GUI</button>
+            <button class="cmd-btn" data-type="CTRL">CTRL</button>
+            <button class="cmd-btn" data-type="ALT">ALT</button>
+            <button class="cmd-btn" data-type="SHIFT">SHIFT</button>
+            <button class="cmd-btn" data-type="TAB">TAB</button>
+            <button class="cmd-btn" data-type="SPACE">SPACE</button>
         </div>
-
-        <div id="edit-modal" class="modal">
-            <div class="modal-content small-modal">
-                <h2 id="edit-modal-title">Редактировать</h2>
-                <input type="text" id="edit-input" class="cyber-input">
-                <div class="modal-actions">
-                    <button id="save-edit-btn" class="cyber-button primary">ОК</button>
-                    <button id="cancel-edit-btn" class="cyber-button">Отмена</button>
-                </div>
-            </div>
-        </div>
-
-         <style>
-            /* Стиль для переключателя анимации */
-            .toggle-switch {
-                position: relative;
-                display: inline-block;
-                margin-right: 10px;
-                cursor: pointer;
-                font-size: 0.8rem;
-                color: var(--cyber-text-secondary, #8892b0);
-            }
-            .toggle-switch input {
-                opacity: 0;
-                width: 0;
-                height: 0;
-            }
-            .toggle-slider {
-                border: 1px solid var(--cyber-border, #3a4b61);
-                padding: 4px 8px;
-                background: rgba(10, 25, 47, 0.6);
-                transition: .4s;
-            }
-            .toggle-switch input:checked + .toggle-slider {
-                background: var(--cyber-primary, #64ffda);
-                color: var(--cyber-bg, #0a192f);
-                box-shadow: 0 0 10px var(--cyber-primary-glow, rgba(100, 255, 218, 0.3));
-            }
-            
-            /* Стиль для кнопок медиа */
-            .media-btn {
-                border-color: #e67e22 !important; /* Оранжевый оттенок */
-                color: #e67e22 !important;
-            }
-            .media-btn:active {
-                 background: rgba(230, 126, 34, 0.2) !important;
-                 box-shadow: 0 0 15px rgba(230, 126, 34, 0.5) !important;
-            }
-
-            /* Стиль для альтернативной кнопки действия (Скачать) */
-            .cyber-button.alt-action {
-                border-color: var(--cyber-text-secondary, #8892b0);
-                color: var(--cyber-text-secondary, #8892b0);
-            }
-            .cyber-button.alt-action:active {
-                 background: rgba(136, 146, 176, 0.2);
-                 color: var(--cyber-text, #e6f1ff);
-            }
-            /* Убираем дефолтное выделение при тапе на мобилках */
-            * {
-                -webkit-tap-highlight-color: transparent;
-            }
-            /* Улучшаем хват для сортировки */
-            .command-item {
-                touch-action: manipulation; /* Важно для мобилок */
-            }
-            .drag-handle {
-                cursor: grab;
-                padding: 0 10px;
-                font-size: 1.2rem;
-                color: var(--cyber-text-secondary, #8892b0);
-            }
-            /* Стили для SortableJS */
-            .sortable-ghost {
-                opacity: 0.4;
-                background-color: var(--cyber-primary, #64ffda) !important;
-            }
-            .sortable-chosen {
-                 box-shadow: 0 0 15px var(--cyber-primary-glow, rgba(100, 255, 218, 0.3)) !important;
-            }
-         </style>
     </div>
-    <script src="main.js"></script>
+
+    <main class="script-area">
+        <div id="command-list">
+            <div style="text-align: center; color: var(--text-dim); margin-top: 40px;">Нажмите кнопки выше</div>
+        </div>
+    </main>
+
+    <footer>
+        <select id="export-format" class="cyber-select">
+            <option value="ducky">DuckyScript (.txt)</option>
+            <option value="flipper">Flipper Zero (.sub)</option>
+            <option value="esp32">Arduino ESP32 (.ino)</option>
+        </select>
+        <button id="generate-btn" class="cyber-button primary">СГЕНЕРИРОВАТЬ</button>
+    </footer>
+
+    <div id="result-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="color:var(--accent-cyan); font-size: 16px;">РЕЗУЛЬТАТ</h2>
+            <textarea id="result-output" class="cyber-textarea" readonly></textarea>
+            <button id="copy-btn" class="cyber-button primary">КОПИРОВАТЬ</button>
+            <button onclick="document.getElementById('result-modal').style.display='none'" class="cyber-button" style="background:none; color:var(--text-dim); margin-top: 5px;">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="edit-modal-title" style="color:var(--accent-cyan); font-size: 16px;">ВВОД</h2>
+            <input type="text" id="edit-input" class="cyber-input">
+            <button id="save-edit-btn" class="cyber-button primary">СОХРАНИТЬ</button>
+        </div>
+    </div>
+
+    <script>
+        // ЛОГИКА ПРИЛОЖЕНИЯ
+        let scriptCommands = [];
+        let commandIdCounter = 0;
+        let currentEditCommandId = null;
+
+        const commandList = document.getElementById('command-list');
+        const editModal = document.getElementById('edit-modal');
+        const editInput = document.getElementById('edit-input');
+
+        // Инициализация сортировки
+        new Sortable(commandList, {
+            animation: 150,
+            handle: '.drag-handle',
+            onEnd: (evt) => {
+                const movedItem = scriptCommands.splice(evt.oldIndex, 1)[0];
+                scriptCommands.splice(evt.newIndex, 0, movedItem);
+            }
+        });
+
+        // Добавление команд
+        document.querySelectorAll('.cmd-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.dataset.type;
+                if (!type) return;
+                
+                if (type === 'STRING' || type === 'DELAY') {
+                    openEditModal(type);
+                } else {
+                    addCommand(type);
+                }
+            });
+        });
+
+        function addCommand(type, value = null) {
+            scriptCommands.push({ id: commandIdCounter++, type, value });
+            render();
+        }
+
+        function openEditModal(type) {
+            currentEditCommandId = null;
+            document.getElementById('edit-modal-title').textContent = type;
+            editInput.value = '';
+            editModal.style.display = 'flex';
+            editInput.focus();
+        }
+
+        document.getElementById('save-edit-btn').onclick = () => {
+            const type = document.getElementById('edit-modal-title').textContent;
+            addCommand(type, editInput.value);
+            editModal.style.display = 'none';
+        };
+
+        function render() {
+            if (scriptCommands.length === 0) {
+                commandList.innerHTML = '<div style="text-align: center; color: var(--text-dim); margin-top: 40px;">Нажмите кнопки выше</div>';
+                return;
+            }
+            commandList.innerHTML = '';
+            scriptCommands.forEach((cmd, index) => {
+                const div = document.createElement('div');
+                div.className = 'command-item';
+                div.innerHTML = `
+                    <span class="drag-handle">☰</span>
+                    <span class="command-text"><strong>${cmd.type}</strong> ${cmd.value ? ': ' + cmd.value : ''}</span>
+                    <button class="delete-btn" onclick="deleteCmd(${index})">×</button>
+                `;
+                commandList.appendChild(div);
+            });
+        }
+
+        window.deleteCmd = (index) => {
+            scriptCommands.splice(index, 1);
+            render();
+        };
+
+        document.getElementById('reset-btn').onclick = () => {
+            if (confirm('Очистить всё?')) {
+                scriptCommands = [];
+                render();
+            }
+        };
+
+        // Генерация
+        document.getElementById('generate-btn').onclick = () => {
+            if (scriptCommands.length === 0) return alert('Пусто!');
+            let res = scriptCommands.map(c => c.type === 'STRING' ? 'STRING ' + c.value : c.type === 'DELAY' ? 'DELAY ' + c.value : c.type).join('\n');
+            document.getElementById('result-output').value = res;
+            document.getElementById('result-modal').style.display = 'flex';
+        };
+
+        document.getElementById('copy-btn').onclick = () => {
+            navigator.clipboard.writeText(document.getElementById('result-output').value);
+            alert('Скопировано!');
+        };
+
+        // Анимация фона (упрощенная)
+        const canvas = document.getElementById('background-canvas');
+        const app = new PIXI.Application({ view: canvas, resizeTo: window, transparent: true });
+        const graphics = new PIXI.Graphics();
+        app.stage.addChild(graphics);
+        app.ticker.add(() => {
+            graphics.clear();
+            graphics.lineStyle(1, 0x00d4ff, 0.1);
+            for(let i=0; i<window.innerWidth; i+=40) { graphics.moveTo(i, 0); graphics.lineTo(i, window.innerHeight); }
+            for(let i=0; i<window.innerHeight; i+=40) { graphics.moveTo(0, i); graphics.lineTo(window.innerWidth, i); }
+        });
+    </script>
 </body>
 </html>
