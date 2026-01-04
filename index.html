@@ -33,11 +33,13 @@
             flex-direction: column;
         }
 
+        /* КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: фон больше не блокирует клики */
         #background-canvas {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
             opacity: 0.2;
+            pointer-events: none; 
         }
 
         header {
@@ -48,6 +50,7 @@
             flex-direction: column;
             gap: 10px;
             backdrop-filter: blur(10px);
+            z-index: 10;
         }
 
         .header-top { display: flex; justify-content: space-between; align-items: center; }
@@ -56,7 +59,7 @@
         h1 { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent-cyan); text-shadow: 0 0 8px var(--accent-cyan); }
 
         .btn {
-            padding: 6px 10px;
+            padding: 8px 10px;
             border-radius: 4px;
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px;
@@ -77,6 +80,7 @@
             border-bottom: 1px solid var(--border);
             overflow-x: auto;
             padding-bottom: 8px;
+            z-index: 10;
         }
 
         .toolbar { display: flex; gap: 6px; padding: 5px 8px; }
@@ -85,11 +89,12 @@
             background: rgba(0, 212, 255, 0.05);
             border: 1px solid var(--border);
             color: var(--accent-cyan);
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 4px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
+            font-size: 12px;
             white-space: nowrap;
+            cursor: pointer;
         }
 
         .tpl-btn {
@@ -98,13 +103,13 @@
             color: var(--accent-purple);
         }
 
-        .script-area { flex: 1; overflow-y: auto; padding: 12px; }
+        .script-area { flex: 1; overflow-y: auto; padding: 12px; z-index: 5; }
 
         .command-item {
             background: var(--bg-panel);
             border: 1px solid var(--border);
             margin-bottom: 6px;
-            padding: 10px;
+            padding: 12px;
             border-radius: 6px;
             display: flex;
             align-items: center;
@@ -113,18 +118,18 @@
 
         .command-text { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
         .command-text b { color: var(--accent-cyan); }
-        .drag-handle { color: var(--text-dim); font-size: 18px; padding: 0 5px; }
+        .drag-handle { color: var(--text-dim); font-size: 18px; padding: 0 5px; cursor: move; }
 
-        .delete-btn { background: none; border: 1px solid var(--danger); color: var(--danger); width: 24px; height: 24px; border-radius: 4px; }
+        .delete-btn { background: none; border: 1px solid var(--danger); color: var(--danger); width: 28px; height: 28px; border-radius: 4px; font-weight: bold; cursor: pointer;}
 
-        footer { padding: 12px; background: var(--bg-panel); border-top: 1px solid var(--border); }
+        footer { padding: 12px; background: var(--bg-panel); border-top: 1px solid var(--border); z-index: 10; }
 
-        .cyber-select { width: 100%; background: var(--bg-dark); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 4px; }
+        .cyber-select { width: 100%; background: var(--bg-dark); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 4px; -webkit-appearance: none; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: var(--bg-panel); border: 1px solid var(--accent-cyan); padding: 20px; border-radius: 8px; width: 100%; max-width: 350px; }
-        .cyber-textarea { width: 100%; height: 180px; background: #000; border: 1px solid var(--border); color: var(--accent-green); padding: 10px; font-family: 'JetBrains Mono'; font-size: 11px; margin-bottom: 10px; }
-        .cyber-input { width: 100%; background: var(--bg-dark); border: 1px solid var(--accent-cyan); color: white; padding: 12px; border-radius: 4px; margin-bottom: 15px; }
+        .cyber-textarea { width: 100%; height: 180px; background: #000; border: 1px solid var(--border); color: var(--accent-green); padding: 10px; font-family: 'JetBrains Mono'; font-size: 11px; margin-bottom: 10px; resize: none; }
+        .cyber-input { width: 100%; background: var(--bg-dark); border: 1px solid var(--accent-cyan); color: white; padding: 12px; border-radius: 4px; margin-bottom: 15px; font-size: 16px; /* Предотвращает зум на iOS */ }
     </style>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
@@ -155,20 +160,25 @@
             <button class="cmd-btn" data-type="ALT">ALT</button>
             <button class="cmd-btn" data-type="SHIFT">SHIFT</button>
         </div>
-        <div class="toolbar-label">Шаблоны (Заготовки)</div>
+        <div class="toolbar-label">iOS / Android</div>
         <div class="toolbar">
             <button class="cmd-btn tpl-btn" data-tpl="pin_7878">PIN 7878</button>
-            <button class="cmd-btn tpl-btn" data-tpl="ios_screen">iOS Screen</button>
-            <button class="cmd-btn tpl-btn" data-tpl="android_lock">Android Lock</button>
-            <button class="cmd-btn tpl-btn" data-tpl="win_cmd">Win CMD</button>
-            <button class="cmd-btn tpl-btn" data-tpl="mac_term">Mac Term</button>
-            <button class="cmd-btn tpl-btn" data-tpl="linux_root">Linux Root</button>
+            <button class="cmd-btn tpl-btn" data-tpl="ios_screen">iOS Screenshot</button>
+            <button class="cmd-btn tpl-btn" data-tpl="android_lock">Lock Screen</button>
+            <button class="cmd-btn tpl-btn" data-tpl="ios_notif">iOS Notif</button>
+        </div>
+        <div class="toolbar-label">Windows / Mac / Linux</div>
+        <div class="toolbar">
+            <button class="cmd-btn tpl-btn" data-tpl="win_cmd">Win Admin CMD</button>
+            <button class="cmd-btn tpl-btn" data-tpl="mac_term">Mac Terminal</button>
+            <button class="cmd-btn tpl-btn" data-tpl="linux_term">Linux Term</button>
+            <button class="cmd-btn tpl-btn" data-tpl="win_lock">Win+L</button>
         </div>
     </div>
 
     <main class="script-area">
         <div id="command-list">
-            <div style="text-align: center; color: var(--text-dim); margin-top: 50px; font-size: 12px; font-family: 'JetBrains Mono';">
+            <div id="empty-hint" style="text-align: center; color: var(--text-dim); margin-top: 50px; font-size: 12px; font-family: 'JetBrains Mono';">
                 [ ОЖИДАНИЕ КОМАНД... ]
             </div>
         </div>
@@ -182,123 +192,162 @@
         </select>
     </footer>
 
-    <div id="help-modal" class="modal"><div class="modal-content"><h2 id="h_title">Справка</h2><div id="h_body" style="font-size:11px; color:var(--text-dim); line-height:1.4;"></div><button onclick="closeModals()" class="btn btn-gen" style="width:100%; margin-top:15px;">ОК</button></div></div>
+    <div id="help-modal" class="modal"><div class="modal-content"><h2>Шпаргалка</h2><div id="h_body" style="font-size:11px; color:var(--text-dim); line-height:1.4;"></div><button onclick="closeModals()" class="btn btn-gen" style="width:100%; margin-top:15px;">ОК</button></div></div>
+    
     <div id="result-modal" class="modal"><div class="modal-content"><h2>ГОТОВЫЙ КОД</h2><textarea id="result-output" class="cyber-textarea" readonly></textarea><button id="copy-btn" class="btn btn-gen" style="width:100%;">КОПИРОВАТЬ</button><button onclick="closeModals()" class="btn btn-reset" style="width:100%; margin-top:8px;">ЗАКРЫТЬ</button></div></div>
-    <div id="edit-modal" class="modal"><div class="modal-content"><h2 id="edit-modal-title">ВВОД</h2><input type="text" id="edit-input" class="cyber-input"><button id="save-edit-btn" class="btn btn-gen" style="width:100%;">ДОБАВИТЬ</button></div></div>
+    
+    <div id="edit-modal" class="modal"><div class="modal-content"><h2 id="edit-modal-title">ВВОД</h2><input type="text" id="edit-input" class="cyber-input"><button id="save-edit-btn" class="btn btn-gen" style="width:100%;">ДОБАВИТЬ</button><button onclick="closeModals()" class="btn btn-reset" style="width:100%; margin-top:8px;">ОТМЕНА</button></div></div>
 
     <script>
-        let scriptCommands = [];
-        let commandIdCounter = 0;
-        const commandList = document.getElementById('command-list');
-        const editModal = document.getElementById('edit-modal');
-        const editInput = document.getElementById('edit-input');
+        document.addEventListener('DOMContentLoaded', () => {
+            let scriptCommands = [];
+            let commandIdCounter = 0;
+            const commandList = document.getElementById('command-list');
+            const editModal = document.getElementById('edit-modal');
+            const editInput = document.getElementById('edit-input');
 
-        new Sortable(commandList, { animation: 150, handle: '.drag-handle', onEnd: (evt) => {
-            const movedItem = scriptCommands.splice(evt.oldIndex, 1)[0];
-            scriptCommands.splice(evt.newIndex, 0, movedItem);
-        }});
-
-        // Обработка обычных кнопок
-        document.querySelectorAll('.cmd-btn:not(.tpl-btn)').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const type = btn.dataset.type;
-                if (type === 'STRING' || type === 'DELAY') openEditModal(type);
-                else addCommand(type);
-            });
-        });
-
-        // Обработка шаблонов
-        document.querySelectorAll('.tpl-btn').forEach(btn => {
-            btn.addEventListener('click', () => addTemplate(btn.dataset.tpl));
-        });
-
-        function addCommand(type, value = null) {
-            scriptCommands.push({ id: commandIdCounter++, type, value });
-            render();
-        }
-
-        function addTemplate(tpl) {
-            if (tpl === 'pin_7878') {
-                addCommand('STRING', ' '); [span_1](start_span)// Пробуждение[span_1](end_span)
-                addCommand('DELAY', '1000');
-                addCommand('STRING', '7'); addCommand('DELAY', '500');
-                addCommand('STRING', '8'); addCommand('DELAY', '500');
-                addCommand('STRING', '7'); addCommand('DELAY', '500');
-                [span_2](start_span)addCommand('STRING', '8');[span_2](end_span)
-            } else if (tpl === 'ios_screen') {
-                addCommand('GUI', 'SHIFT'); addCommand('STRING', '3'); // Скриншот iOS
-            } else if (tpl === 'android_lock') {
-                addCommand('GUI', 'L'); // Блокировка Android
-            } else if (tpl === 'win_cmd') {
-                addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'cmd'); addCommand('ENTER');
-            } else if (tpl === 'mac_term') {
-                addCommand('GUI', ' '); addCommand('DELAY', '300'); addCommand('STRING', 'terminal'); addCommand('ENTER');
-            } else if (tpl === 'linux_root') {
-                addCommand('CTRL', 'ALT'); addCommand('STRING', 't'); addCommand('DELAY', '500'); addCommand('STRING', 'sudo su'); addCommand('ENTER');
+            // Инициализация сортировки
+            if (typeof Sortable !== 'undefined') {
+                new Sortable(commandList, { 
+                    animation: 150, 
+                    handle: '.drag-handle', 
+                    onEnd: (evt) => {
+                        const movedItem = scriptCommands.splice(evt.oldIndex, 1)[0];
+                        scriptCommands.splice(evt.newIndex, 0, movedItem);
+                    }
+                });
             }
-        }
 
-        function openEditModal(type) {
-            document.getElementById('edit-modal-title').textContent = type;
-            editInput.value = ''; editModal.style.display = 'flex';
-            setTimeout(() => editInput.focus(), 100);
-        }
-
-        document.getElementById('save-edit-btn').onclick = () => {
-            addCommand(document.getElementById('edit-modal-title').textContent, editInput.value);
-            closeModals();
-        };
-
-        function render() {
-            if (scriptCommands.length === 0) {
-                commandList.innerHTML = '<div style="text-align: center; color: var(--text-dim); margin-top: 50px; font-size: 12px; font-family: \'JetBrains Mono\';">[ ОЖИДАНИЕ КОМАНД... ]</div>';
-                return;
+            // Рендер списка
+            function render() {
+                const hint = document.getElementById('empty-hint');
+                if (scriptCommands.length === 0) {
+                    if (hint) hint.style.display = 'block';
+                    commandList.innerHTML = '';
+                    if (hint) commandList.appendChild(hint);
+                    return;
+                }
+                if (hint) hint.style.display = 'none';
+                
+                commandList.innerHTML = '';
+                scriptCommands.forEach((cmd, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'command-item';
+                    div.innerHTML = `
+                        <span class="drag-handle">☰</span>
+                        <span class="command-text"><b>${cmd.type}</b> ${cmd.value ? ': ' + cmd.value : ''}</span>
+                        <button class="delete-btn" data-idx="${index}">×</button>
+                    `;
+                    div.querySelector('.delete-btn').onclick = () => {
+                        scriptCommands.splice(index, 1);
+                        render();
+                    };
+                    commandList.appendChild(div);
+                });
             }
-            commandList.innerHTML = '';
-            scriptCommands.forEach((cmd, index) => {
-                const div = document.createElement('div');
-                div.className = 'command-item';
-                div.innerHTML = `<span class="drag-handle">☰</span><span class="command-text"><b>${cmd.type}</b> ${cmd.value ? ': ' + cmd.value : ''}</span><button class="delete-btn" onclick="deleteCmd(${index})">×</button>`;
-                commandList.appendChild(div);
+
+            function addCommand(type, value = null) {
+                scriptCommands.push({ id: commandIdCounter++, type, value });
+                render();
+            }
+
+            // Шаблоны
+            function addTemplate(tpl) {
+                if (tpl === 'pin_7878') {
+                    addCommand('STRING', ' '); // Пробуждение
+                    addCommand('DELAY', '1000');
+                    addCommand('STRING', '7'); addCommand('DELAY', '500');
+                    addCommand('STRING', '8'); addCommand('DELAY', '500');
+                    addCommand('STRING', '7'); addCommand('DELAY', '500');
+                    addCommand('STRING', '8');
+                } else if (tpl === 'ios_screen') {
+                    addCommand('GUI', 'SHIFT'); addCommand('STRING', '3');
+                } else if (tpl === 'android_lock') {
+                    addCommand('GUI', 'L');
+                } else if (tpl === 'ios_notif') {
+                    addCommand('GUI', 'N');
+                } else if (tpl === 'win_cmd') {
+                    addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'cmd'); addCommand('ENTER');
+                } else if (tpl === 'mac_term') {
+                    addCommand('GUI', ' '); addCommand('DELAY', '300'); addCommand('STRING', 'terminal'); addCommand('ENTER');
+                } else if (tpl === 'linux_term') {
+                    addCommand('CTRL', 'ALT'); addCommand('STRING', 't');
+                } else if (tpl === 'win_lock') {
+                    addCommand('GUI', 'l');
+                }
+            }
+
+            // Слушатели кнопок
+            document.querySelectorAll('.cmd-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    if (btn.classList.contains('tpl-btn')) {
+                        addTemplate(btn.dataset.tpl);
+                    } else {
+                        const type = btn.dataset.type;
+                        if (type === 'STRING' || type === 'DELAY') {
+                            document.getElementById('edit-modal-title').textContent = type;
+                            editInput.value = '';
+                            editModal.style.display = 'flex';
+                            setTimeout(() => editInput.focus(), 150);
+                        } else {
+                            addCommand(type);
+                        }
+                    }
+                };
             });
-        }
 
-        window.deleteCmd = (index) => { scriptCommands.splice(index, 1); render(); };
-        window.closeModals = () => { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); };
+            document.getElementById('save-edit-btn').onclick = () => {
+                addCommand(document.getElementById('edit-modal-title').textContent, editInput.value);
+                closeModals();
+            };
 
-        document.getElementById('help-btn').onclick = () => {
-            document.getElementById('h_body').innerHTML = `
-                <b>STRING:</b> Ввод текста.<br>
-                <b>DELAY:</b> Пауза (1000 = 1 сек).<br>
-                <b>GUI:</b> Клавиша Win/Cmd.<br><br>
-                <b>ШАБЛОНЫ:</b> Наборы команд для быстрого взлома/автоматизации.
-            `;
-            document.getElementById('help-modal').style.display = 'flex';
-        };
+            window.closeModals = () => {
+                document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            };
 
-        document.getElementById('reset-btn').onclick = () => { if (confirm('Очистить?')) { scriptCommands = []; render(); } };
+            document.getElementById('help-btn').onclick = () => {
+                document.getElementById('h_body').innerHTML = `
+                    <b>STRING:</b> Печать текста.<br>
+                    <b>DELAY:</b> Пауза в мс (1000 = 1 сек).<br>
+                    <b>GUI:</b> Win / Cmd клавиша.<br><br>
+                    <b>ШАБЛОНЫ:</b> Нажми на фиолетовую кнопку, чтобы добавить сразу целый кусок кода для взлома PIN или открытия терминала.
+                `;
+                document.getElementById('help-modal').style.display = 'flex';
+            };
 
-        document.getElementById('generate-btn').onclick = () => {
-            if (scriptCommands.length === 0) return;
-            let output = scriptCommands.map(c => (c.type === 'STRING' || c.type === 'DELAY') ? c.type + ' ' + c.value : c.type).join('\n');
-            document.getElementById('result-output').value = output;
-            document.getElementById('result-modal').style.display = 'flex';
-        };
+            document.getElementById('reset-btn').onclick = () => {
+                if (confirm('Очистить всё?')) { scriptCommands = []; render(); }
+            };
 
-        document.getElementById('copy-btn').onclick = () => {
-            document.getElementById('result-output').select();
-            document.execCommand('copy');
-            alert('OK!');
-        };
+            document.getElementById('generate-btn').onclick = () => {
+                if (scriptCommands.length === 0) return alert('Добавь команды!');
+                const output = scriptCommands.map(c => (c.type === 'STRING' || c.type === 'DELAY') ? c.type + ' ' + (c.value || '') : c.type).join('\n');
+                document.getElementById('result-output').value = output;
+                document.getElementById('result-modal').style.display = 'flex';
+            };
 
-        // Фон
-        const pixiApp = new PIXI.Application({ view: document.getElementById('background-canvas'), resizeTo: window, backgroundAlpha: 0 });
-        const grid = new PIXI.Graphics();
-        pixiApp.stage.addChild(grid);
-        pixiApp.ticker.add(() => {
-            grid.clear(); grid.lineStyle(1, 0x00d4ff, 0.05);
-            for(let i=0; i<window.innerWidth; i+=50) { grid.moveTo(i, 0); grid.lineTo(i, window.innerHeight); }
-            for(let i=0; i<window.innerHeight; i+=50) { grid.moveTo(0, i); grid.lineTo(window.innerWidth, i); }
+            document.getElementById('copy-btn').onclick = () => {
+                const area = document.getElementById('result-output');
+                area.select();
+                document.execCommand('copy');
+                alert('Скопировано!');
+            };
+
+            // Фоновая анимация
+            if (typeof PIXI !== 'undefined') {
+                try {
+                    const canvas = document.getElementById('background-canvas');
+                    const pixiApp = new PIXI.Application({ view: canvas, resizeTo: window, backgroundAlpha: 0 });
+                    const grid = new PIXI.Graphics();
+                    pixiApp.stage.addChild(grid);
+                    pixiApp.ticker.add(() => {
+                        grid.clear(); grid.lineStyle(1, 0x00d4ff, 0.05);
+                        for(let i=0; i<window.innerWidth; i+=50) { grid.moveTo(i, 0); grid.lineTo(i, window.innerHeight); }
+                        for(let i=0; i<window.innerHeight; i+=50) { grid.moveTo(0, i); grid.lineTo(window.innerWidth, i); }
+                    });
+                } catch(e) { console.log("PIXI Error", e); }
+            }
         });
     </script>
 </body>
